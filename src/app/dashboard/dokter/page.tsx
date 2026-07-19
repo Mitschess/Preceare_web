@@ -13,7 +13,7 @@ export default function DokterDashboard() {
   ).length;
 
   return (
-    <div className="space-y-6 max-w-7xl">
+    <div className="w-full space-y-6">
       {/* Welcome doctor */}
       <div>
         <h2 className="text-2xl font-bold text-gray-900">Dashboard Rumah Sakit</h2>

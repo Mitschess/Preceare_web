@@ -14,6 +14,8 @@ import {
   Star,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import Image from "next/image";
+
 
 export default function HomePage() {
   const [scrolled, setScrolled] = useState(false);
@@ -28,16 +30,16 @@ export default function HomePage() {
     <div className="flex flex-col min-h-screen">
       {/* Navbar */}
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          scrolled
-            ? "glass shadow-lg py-3"
-            : "bg-transparent py-5"
-        }`}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
+          ? "glass shadow-lg py-3"
+          : "bg-transparent py-5"
+          }`}
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
-              <Heart className="w-5 h-5 text-white" />
+              {/* <Heart className="w-5 h-5 text-white" /> */}
+              <Image src="/icon.png" alt="Logo PREECARE" width={100} height={100} className="object-contain p-1 rounded-xl" />
             </div>
             <span className="text-xl font-bold tracking-tight">
               <span className={scrolled ? "text-[#0F172A]" : "text-white"}>PREE</span>
@@ -50,11 +52,10 @@ export default function HomePage() {
               <a
                 key={item}
                 href={`#${item.toLowerCase().replace(" ", "-")}`}
-                className={`text-sm font-medium transition-colors ${
-                  scrolled
-                    ? "text-gray-600 hover:text-[#0EA5E9]"
-                    : "text-white/80 hover:text-white"
-                }`}
+                className={`text-sm font-medium transition-colors ${scrolled
+                  ? "text-gray-600 hover:text-[#0EA5E9]"
+                  : "text-white/80 hover:text-white"
+                  }`}
               >
                 {item}
               </a>
@@ -64,11 +65,10 @@ export default function HomePage() {
           <div className="flex items-center gap-3">
             <Link
               href="/login"
-              className={`text-sm font-medium px-4 py-2 rounded-xl transition-all ${
-                scrolled
-                  ? "text-gray-600 hover:text-[#0EA5E9]"
-                  : "text-white/80 hover:text-white"
-              }`}
+              className={`text-sm font-medium px-4 py-2 rounded-xl transition-all ${scrolled
+                ? "text-gray-600 hover:text-[#0EA5E9]"
+                : "text-white/80 hover:text-white"
+                }`}
             >
               Masuk
             </Link>
@@ -100,15 +100,15 @@ export default function HomePage() {
           />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-6 py-32">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="animate-fadeIn">
+        <div className="relative max-w-7xl mx-auto px-6 py-20 sm:py-32">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <div className="animate-fadeIn mt-12 lg:mt-0">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm mb-6">
                 <Zap className="w-4 h-4 text-[#FCD34D]" />
                 <span className="text-white/90 text-sm font-medium">AI-Powered Screening</span>
               </div>
 
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.15] mb-6">
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.15] mb-6">
                 Deteksi Dini{" "}
                 <span className="bg-gradient-to-r from-[#38BDF8] to-[#34D399] bg-clip-text text-transparent">
                   Preeklamsia
@@ -116,7 +116,7 @@ export default function HomePage() {
                 dengan AI
               </h1>
 
-              <p className="text-lg text-white/70 leading-relaxed mb-8 max-w-lg">
+              <p className="text-base sm:text-lg text-white/70 leading-relaxed mb-8 max-w-lg">
                 PREECARE mengintegrasikan perangkat medis, kecerdasan buatan, dan
                 tenaga kesehatan untuk screening preeklamsia yang akurat dan cepat.
               </p>
@@ -124,29 +124,29 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
                   href="/dashboard"
-                  className="btn btn-primary !py-3 !px-8 text-base"
+                  className="btn btn-primary !py-3 !px-8 text-base w-full sm:w-auto"
                 >
                   Mulai Sekarang
                   <ArrowRight className="w-5 h-5" />
                 </Link>
                 <a
                   href="#cara-kerja"
-                  className="btn btn-outline !border-white/30 !text-white hover:!bg-white/10 !py-3 !px-8 text-base"
+                  className="btn btn-outline !border-white/30 !text-white hover:!bg-white/10 !py-3 !px-8 text-base w-full sm:w-auto text-center"
                 >
                   Cara Kerja
                 </a>
               </div>
 
               {/* Stats mini */}
-              <div className="flex gap-8 mt-12">
+              <div className="grid grid-cols-3 gap-4 sm:gap-8 mt-12 max-w-md">
                 {[
                   { value: "500+", label: "Pasien" },
                   { value: "98%", label: "Akurasi AI" },
                   { value: "<3s", label: "Response" },
                 ].map((stat) => (
-                  <div key={stat.label}>
-                    <div className="text-2xl font-bold text-white">{stat.value}</div>
-                    <div className="text-sm text-white/50">{stat.label}</div>
+                  <div key={stat.label} className="border-l border-white/10 pl-4 first:border-none first:pl-0">
+                    <div className="text-xl sm:text-2xl font-bold text-white">{stat.value}</div>
+                    <div className="text-xs sm:text-sm text-white/50">{stat.label}</div>
                   </div>
                 ))}
               </div>
@@ -173,8 +173,8 @@ export default function HomePage() {
                       <div key={i} className="flex-1 rounded-t-md transition-all" style={{
                         height: `${h}%`,
                         background: h > 70 ? "linear-gradient(to top, #EF4444, #F87171)" :
-                                   h > 50 ? "linear-gradient(to top, #F59E0B, #FBBF24)" :
-                                   "linear-gradient(to top, #10B981, #34D399)",
+                          h > 50 ? "linear-gradient(to top, #F59E0B, #FBBF24)" :
+                            "linear-gradient(to top, #10B981, #34D399)",
                         animationDelay: `${i * 0.1}s`,
                       }} />
                     ))}
@@ -205,7 +205,7 @@ export default function HomePage() {
                 </div>
 
                 {/* Floating badge 2 */}
-                <div className="absolute -bottom-4 -left-4 card p-4 rounded-2xl animate-float shadow-lg bg-white" style={{ animationDelay: "1.5s" }}>
+                <div className="absolute -bottom-12 -left-10 card p-4 rounded-2xl animate-float shadow-lg bg-white" style={{ animationDelay: "1.5s" }}>
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-xl bg-blue-100 flex items-center justify-center">
                       <Zap className="w-4 h-4 text-blue-600" />
@@ -371,12 +371,12 @@ export default function HomePage() {
             Bergabung dengan PREECARE dan manfaatkan teknologi AI untuk deteksi
             dini yang lebih akurat dan cepat.
           </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link href="/dashboard" className="btn btn-primary !bg-white !text-[#0EA5E9] !py-3 !px-8 text-base hover:!bg-gray-50 !shadow-xl">
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 max-w-sm mx-auto sm:max-w-none">
+            <Link href="/dashboard" className="btn btn-primary !bg-white !text-[#FFF] !py-3 !px-8 text-base hover:!bg-gray-50 !shadow-xl w-full sm:w-auto flex items-center justify-center gap-2">
               Akses Dashboard
               <ArrowRight className="w-5 h-5" />
             </Link>
-            <Link href="/login" className="btn btn-outline !border-white/40 !text-white hover:!bg-white/10 !py-3 !px-8 text-base">
+            <Link href="/login" className="btn btn-outline !border-white/40 !text-white hover:!bg-white/10 !py-3 !px-8 text-base w-full sm:w-auto text-center">
               Login
             </Link>
           </div>
@@ -424,7 +424,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-500">
-            © {new Date().getFullYear()} PREECARE Team. All rights reserved.
+            © {new Date().getFullYear()} PREECARE Team. Develop by Mitschess. All rights reserved.
           </div>
         </div>
       </footer>
