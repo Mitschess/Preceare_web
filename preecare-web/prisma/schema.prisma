@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  PASIEN
+  NAKES
+  DOKTER
+  ADMIN
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum ReferralStatus {
+  PENDING
+  ACCEPTED
+  IN_PROGRESS
+  COMPLETED
+  REJECTED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  name          String
+  role          Role      @default(PASIEN)
+  facilityId    String?
+  facility      Facility? @relation(fields: [facilityId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  patient       Patient?
+}
+
+model Facility {
+  id            String    @id @default(cuid())
+  name          String
+  type          String    // "PUSKESMAS" or "RUMAH_SAKIT"
+  address       String
+  phone         String?
+  createdAt     DateTime  @default(now())
+
+  users         User[]
+  referralsFrom Referral[] @relation("ReferralFrom")
+  referralsTo   Referral[] @relation("ReferralTo")
+}
+
+model Patient {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id])
+  nik             String    @unique
+  nama            String
+  tanggalLahir    DateTime
+  usiaKehamilan   Int       // in weeks
+  alamat          String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  screenings      Screening[]
+  referrals       Referral[]
+}
+
+model Screening {
+  id              String      @id @default(cuid())
+  patientId       String
+  patient         Patient     @relation(fields: [patientId], references: [id])
+  systolic        Int
+  diastolic       Int
+  proteinUrin     Float
+  aiResult        RiskLevel
+  confidence      Float
+  createdAt       DateTime    @default(now())
+
+  riskFactors     RiskFactor?
+}
+
+model RiskFactor {
+  id                  String    @id @default(cuid())
+  screeningId         String    @unique
+  screening           Screening @relation(fields: [screeningId], references: [id])
+  diabetes            Boolean   @default(false)
+  riwayatPreeklamsia  Boolean   @default(false)
+  riwayatKeluarga     Boolean   @default(false)
+  hipertensi          Boolean   @default(false)
+  kehamilanPertama    Boolean   @default(false)
+}
+
+model Referral {
+  id              String          @id @default(cuid())
+  patientId       String
+  patient         Patient         @relation(fields: [patientId], references: [id])
+  fromFacilityId  String
+  fromFacility    Facility        @relation("ReferralFrom", fields: [fromFacilityId], references: [id])
+  toFacilityId    String
+  toFacility      Facility        @relation("ReferralTo", fields: [toFacilityId], references: [id])
+  status          ReferralStatus  @default(PENDING)
+  notes           String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
