@@ -4,12 +4,14 @@ import {
   Users,
   Activity,
   AlertTriangle,
-  TrendingUp,
   ArrowUpRight,
   ArrowDownRight,
   Clock,
   Send,
-  Shield,
+  Brain,
+  Stethoscope,
+  Scale,
+  Eye,
 } from "lucide-react";
 import {
   patients,
@@ -158,7 +160,7 @@ export default function NakesDashboard() {
           </div>
         </div>
 
-        {/* Recent Screenings */}
+        {/* Recent Screenings with enhanced data (8D: Hasil sensor, Hasil AI, Confidence Score) */}
         <div className="lg:col-span-2 card p-6 animate-fadeIn delay-400">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-bold text-gray-900">Screening Terbaru</h3>
@@ -226,7 +228,7 @@ export default function NakesDashboard() {
         </div>
       </div>
 
-      {/* Patient Alert Cards */}
+      {/* Patient Alert Cards — Enhanced with anamnesis detail (8D requirements) */}
       <div className="card p-6 animate-fadeIn delay-500">
         <div className="flex items-center gap-2 mb-4">
           <AlertTriangle className="w-5 h-5 text-red-500" />
@@ -257,7 +259,9 @@ export default function NakesDashboard() {
                     {getRiskLabel(p.latest!.aiResult)}
                   </span>
                 </div>
-                <div className="flex gap-4 text-sm">
+
+                {/* Sensor Results */}
+                <div className="flex gap-4 text-sm mb-3">
                   <div>
                     <div className="text-gray-500 text-xs">TD</div>
                     <div className="font-semibold">{p.latest!.systolic}/{p.latest!.diastolic}</div>
@@ -271,8 +275,123 @@ export default function NakesDashboard() {
                     <div className="font-semibold">{Math.round(p.latest!.confidence * 100)}%</div>
                   </div>
                 </div>
+
+                {/* Detail Anamnesis (8D requirement) */}
+                {p.latest!.riskFactors && (
+                  <div className="border-t border-gray-200/50 pt-2 mt-2">
+                    <div className="text-[10px] font-semibold text-gray-500 uppercase mb-1.5">Anamnesis</div>
+                    <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Usia</span>
+                        <span className="font-medium">{p.latest!.riskFactors.usiaIbu} thn</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">BMI</span>
+                        <span className="font-medium">{p.latest!.riskFactors.bmi.toFixed(1)}</span>
+                      </div>
+                      {[
+                        { l: "Diabetes", v: p.latest!.riskFactors.diabetes },
+                        { l: "Hipertensi", v: p.latest!.riskFactors.hipertensi },
+                        { l: "Rw. Preeklamsia", v: p.latest!.riskFactors.riwayatPreeklamsia },
+                        { l: "Rw. Keluarga", v: p.latest!.riskFactors.riwayatKeluarga },
+                        { l: "Ginjal", v: p.latest!.riskFactors.penyakitGinjal },
+                        { l: "Nullipara", v: p.latest!.riskFactors.kehamilanPertama },
+                      ].filter(f => f.v).map((f) => (
+                        <div key={f.l} className="flex items-center gap-1">
+                          <div className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />
+                          <span className="text-gray-700">{f.l}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Action: Rujuk (8D requirement) */}
+                {p.latest!.aiResult === "HIGH" && (
+                  <div className="mt-3 pt-2 border-t border-gray-200/50">
+                    <Link
+                      href="/dashboard/nakes/rujukan"
+                      className="w-full btn btn-danger text-xs !py-2"
+                    >
+                      <Send className="w-3 h-3" />
+                      Rujuk ke Rumah Sakit
+                    </Link>
+                  </div>
+                )}
               </div>
             ))}
+        </div>
+      </div>
+
+      {/* Riwayat Pemeriksaan Quick View (8D: Riwayat pemeriksaan) */}
+      <div className="card p-6 animate-fadeIn delay-600">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Stethoscope className="w-5 h-5 text-[#0EA5E9]" />
+            <h3 className="text-lg font-bold text-gray-900">Daftar Pasien</h3>
+          </div>
+          <Link href="/dashboard/nakes/pasien" className="text-sm text-[#0EA5E9] font-medium hover:underline">
+            Lihat Semua →
+          </Link>
+        </div>
+
+        <div className="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Pasien</th>
+                <th>NIK</th>
+                <th>Usia Kehamilan</th>
+                <th>Hasil Terakhir</th>
+                <th>Confidence</th>
+                <th>Screening</th>
+              </tr>
+            </thead>
+            <tbody>
+              {patients.map((p) => {
+                const latest = getLatestScreening(p.id);
+                const patientScreenings = screenings.filter(s => s.patientId === p.id);
+                return (
+                  <tr key={p.id}>
+                    <td>
+                      <div className="font-medium text-gray-900">{p.nama}</div>
+                      <div className="text-xs text-gray-400">{p.alamat.split(",")[0]}</div>
+                    </td>
+                    <td>
+                      <span className="font-mono text-xs text-gray-600">{p.nik}</span>
+                    </td>
+                    <td>
+                      <span className="text-sm">{p.usiaKehamilan} minggu</span>
+                    </td>
+                    <td>
+                      {latest ? (
+                        <span className={`badge ${latest.aiResult === "HIGH" ? "risk-high" : latest.aiResult === "MEDIUM" ? "risk-medium" : "risk-low"}`}>
+                          {getRiskLabel(latest.aiResult)}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-gray-400">-</span>
+                      )}
+                    </td>
+                    <td>
+                      {latest ? (
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1">
+                            <Brain className="w-3 h-3 text-[#0EA5E9]" />
+                            <span className="text-sm font-semibold">{Math.round(latest.confidence * 100)}%</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-400">-</span>
+                      )}
+                    </td>
+                    <td>
+                      <span className="text-xs text-gray-500">{patientScreenings.length}x pemeriksaan</span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

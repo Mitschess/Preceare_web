@@ -19,6 +19,28 @@ export const patients: Patient[] = [
   { id: "pat-6", userId: "usr-6", nik: "3171012345670006", nama: "Rina Wulandari", tanggalLahir: "1994-01-18", usiaKehamilan: 30, alamat: "Jl. Kramat Raya No. 33, Jakarta Pusat" },
 ];
 
+// Calculate age from birth date
+function calculateAgeFromDate(birthDate: string): number {
+  const today = new Date();
+  const birth = new Date(birthDate);
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age;
+}
+
+// Precomputed patient metadata for risk factor generation
+const patientMeta: Record<string, { bmi: number }> = {
+  "pat-1": { bmi: 23.5 },
+  "pat-2": { bmi: 30.2 },
+  "pat-3": { bmi: 25.1 },
+  "pat-4": { bmi: 32.4 },
+  "pat-5": { bmi: 21.8 },
+  "pat-6": { bmi: 27.6 },
+};
+
 // Generate screening history for patients
 function generateScreenings(): Screening[] {
   const screenings: Screening[] = [];
@@ -26,6 +48,9 @@ function generateScreenings(): Screening[] {
 
   patients.forEach((patient) => {
     const count = 3 + Math.floor(Math.random() * 5);
+    const patientAge = calculateAgeFromDate(patient.tanggalLahir);
+    const meta = patientMeta[patient.id] || { bmi: 24.0 };
+
     for (let i = 0; i < count; i++) {
       const date = new Date(now);
       date.setDate(date.getDate() - (count - i) * 14); // bi-weekly
@@ -68,14 +93,45 @@ function generateScreenings(): Screening[] {
         riskFactors: {
           id: `rf-${patient.id}-${i}`,
           screeningId: `scr-${patient.id}-${i}`,
+          usiaIbu: patientAge,
+          bmi: meta.bmi + (Math.random() * 2 - 1), // slight variation
           diabetes: isHighRisk && Math.random() > 0.5,
           riwayatPreeklamsia: isHighRisk,
           riwayatKeluarga: isHighRisk || (isMediumRisk && Math.random() > 0.5),
           hipertensi: isHighRisk || (isMediumRisk && Math.random() > 0.3),
+          penyakitGinjal: isHighRisk && Math.random() > 0.7,
           kehamilanPertama: patient.id === "pat-1" || patient.id === "pat-5",
         },
       });
     }
+  });
+
+  // Add dummy screening data from Section 8B of AGENTS_UPDATED.md
+  // This is Fitri Handayani (pat-4): Usia 37, BMI 32.4, TD 152/98, Protein +2, High Risk 89%
+  const dummyDate = new Date(now);
+  dummyDate.setHours(dummyDate.getHours() - 2);
+  screenings.push({
+    id: "scr-dummy-8b",
+    patientId: "pat-4",
+    systolic: 152,
+    diastolic: 98,
+    proteinUrin: 2.0, // +2
+    aiResult: "HIGH",
+    confidence: 0.89,
+    createdAt: dummyDate.toISOString(),
+    patient: patients[3],
+    riskFactors: {
+      id: "rf-dummy-8b",
+      screeningId: "scr-dummy-8b",
+      usiaIbu: 37,
+      bmi: 32.4,
+      diabetes: true,
+      riwayatPreeklamsia: false, // Kehamilan Pertama
+      riwayatKeluarga: true,
+      hipertensi: false,
+      penyakitGinjal: false,
+      kehamilanPertama: true,
+    },
   });
 
   return screenings.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -104,7 +160,7 @@ export const referrals: Referral[] = [
     fromFacilityId: "fac-2",
     toFacilityId: "fac-4",
     status: "PENDING",
-    notes: "Pasien usia kehamilan 36 minggu dengan risiko tinggi preeklamsia.",
+    notes: "Pasien usia kehamilan 36 minggu dengan risiko tinggi preeklamsia. AI Confidence 89%.",
     createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
     updatedAt: new Date(Date.now() - 2 * 86400000).toISOString(),
     patient: patients[3],
@@ -163,42 +219,93 @@ export function getPatientReferrals(patientId: string): Referral[] {
   return referrals.filter((r) => r.patientId === patientId);
 }
 
-// Mock AI prediction
+// Mock AI prediction — updated to follow Hybrid CDSS approach
 export function mockAIPredict(data: {
   systolic: number;
   diastolic: number;
   proteinUrin: number;
+  usiaIbu: number;
+  bmi: number;
   diabetes: boolean;
   riwayatPreeklamsia: boolean;
   riwayatKeluarga: boolean;
   hipertensi: boolean;
+  penyakitGinjal: boolean;
   kehamilanPertama: boolean;
-}): { riskLevel: RiskLevel; confidence: number; factors: string[] } {
-  let score = 0;
+  usiaKehamilan?: number;
+}): {
+  riskLevel: RiskLevel;
+  confidence: number;
+  factors: string[];
+  clinicalRiskScore: number;
+  sensorScore: number;
+  hybridScore: number;
+  recommendation: string;
+} {
   const factors: string[] = [];
 
-  if (data.systolic >= 140) { score += 3; factors.push("Tekanan sistolik tinggi"); }
-  else if (data.systolic >= 130) { score += 2; factors.push("Tekanan sistolik di atas normal"); }
+  // Tahap 1 – Clinical Risk Scoring (Maternal Risk Factors)
+  let clinicalScore = 0;
+  
+  if (data.usiaIbu >= 35) { clinicalScore += 2; factors.push(`Usia Ibu berisiko ≥35 tahun (${data.usiaIbu} tahun)`); }
+  else if (data.usiaIbu < 20) { clinicalScore += 1; factors.push(`Usia Ibu muda <20 tahun (${data.usiaIbu} tahun)`); }
 
-  if (data.diastolic >= 90) { score += 3; factors.push("Tekanan diastolik tinggi"); }
-  else if (data.diastolic >= 80) { score += 1; factors.push("Tekanan diastolik di atas normal"); }
+  if (data.bmi >= 30) { clinicalScore += 2; factors.push(`BMI Obesitas (${data.bmi.toFixed(1)} kg/m²)`); }
+  else if (data.bmi >= 25) { clinicalScore += 1; factors.push(`BMI Overweight (${data.bmi.toFixed(1)} kg/m²)`); }
 
-  if (data.proteinUrin >= 2.0) { score += 3; factors.push("Protein urin tinggi"); }
-  else if (data.proteinUrin >= 0.3) { score += 1; factors.push("Protein urin di atas normal"); }
+  if (data.riwayatPreeklamsia) { clinicalScore += 3; factors.push("Riwayat preeklamsia sebelumnya"); }
+  if (data.riwayatKeluarga) { clinicalScore += 2; factors.push("Riwayat keluarga dengan preeklamsia"); }
+  if (data.diabetes) { clinicalScore += 2; factors.push("Penyakit Diabetes Mellitus"); }
+  if (data.hipertensi) { clinicalScore += 3; factors.push("Penyakit Hipertensi Kronis"); }
+  if (data.penyakitGinjal) { clinicalScore += 3; factors.push("Penyakit Ginjal Kronis"); }
+  if (data.kehamilanPertama) { clinicalScore += 1; factors.push("Kehamilan pertama (Nullipara)"); }
 
-  if (data.diabetes) { score += 2; factors.push("Riwayat diabetes"); }
-  if (data.riwayatPreeklamsia) { score += 3; factors.push("Riwayat preeklamsia"); }
-  if (data.riwayatKeluarga) { score += 2; factors.push("Riwayat keluarga"); }
-  if (data.hipertensi) { score += 2; factors.push("Riwayat hipertensi"); }
-  if (data.kehamilanPertama) { score += 1; factors.push("Kehamilan pertama"); }
+  const gestAge = data.usiaKehamilan || 30; // Fallback to 30 weeks if not provided
+  if (gestAge > 30) { clinicalScore += 2; factors.push(`Usia Kehamilan trimester ketiga (${gestAge} minggu)`); }
+  else if (gestAge > 20) { clinicalScore += 1; factors.push(`Usia Kehamilan trimester kedua (${gestAge} minggu)`); }
 
+  // Tahap 2 – Sensor Measurement (Objective Metrics)
+  let sensorScore = 0;
+  
+  if (data.systolic >= 140) { sensorScore += 3; factors.push(`TD Sistolik Tinggi (≥140 mmHg): ${data.systolic}`); }
+  else if (data.systolic >= 130) { sensorScore += 2; factors.push(`TD Sistolik Pre-hipertensi (≥130 mmHg): ${data.systolic}`); }
+  else if (data.systolic >= 120) { sensorScore += 1; factors.push(`TD Sistolik Normal-tinggi (≥120 mmHg): ${data.systolic}`); }
+
+  if (data.diastolic >= 90) { sensorScore += 3; factors.push(`TD Diastolik Tinggi (≥90 mmHg): ${data.diastolic}`); }
+  else if (data.diastolic >= 80) { sensorScore += 2; factors.push(`TD Diastolik Pre-hipertensi (≥80 mmHg): ${data.diastolic}`); }
+
+  if (data.proteinUrin >= 2.0) { sensorScore += 3; factors.push(`Protein Urin Tinggi (≥2 g/L, setara +2)`); }
+  else if (data.proteinUrin >= 0.3) { sensorScore += 2; factors.push(`Protein Urin Sedang (≥0.3 g/L, setara +1)`); }
+  else if (data.proteinUrin >= 0.15) { sensorScore += 1; factors.push(`Protein Urin Trace (≥0.15 g/L)`); }
+
+  // Tahap 3 – Hybrid AI Prediction
+  const hybridScore = clinicalScore + sensorScore;
+  
   let riskLevel: RiskLevel;
-  if (score >= 8) riskLevel = "HIGH";
-  else if (score >= 4) riskLevel = "MEDIUM";
-  else riskLevel = "LOW";
+  let recommendation = "";
+  
+  if (hybridScore >= 16) {
+    riskLevel = "HIGH";
+    recommendation = "Rujuk Segera ke Rumah Sakit (CDSS Referral Recommendation)";
+  } else if (hybridScore >= 10) {
+    riskLevel = "MEDIUM";
+    recommendation = "Monitoring Ketat & Kontrol Ulang di Puskesmas";
+  } else {
+    riskLevel = "LOW";
+    recommendation = "Lanjutkan Kontrol Kehamilan Rutin";
+  }
 
   const baseConfidence = riskLevel === "HIGH" ? 0.85 : riskLevel === "MEDIUM" ? 0.72 : 0.90;
-  const confidence = Math.round((baseConfidence + Math.random() * 0.10) * 100) / 100;
+  // Determine standard confidence based on scores
+  const confidence = Math.round((baseConfidence + (hybridScore / 60) + Math.random() * 0.05) * 100) / 100;
 
-  return { riskLevel, confidence: Math.min(confidence, 0.99), factors };
+  return {
+    riskLevel,
+    confidence: Math.min(confidence, 0.99),
+    factors,
+    clinicalRiskScore: clinicalScore,
+    sensorScore,
+    hybridScore,
+    recommendation
+  };
 }

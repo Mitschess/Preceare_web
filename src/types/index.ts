@@ -37,10 +37,13 @@ export interface Screening {
 export interface RiskFactor {
   id: string;
   screeningId: string;
+  usiaIbu: number;
+  bmi: number;
   diabetes: boolean;
   riwayatPreeklamsia: boolean;
   riwayatKeluarga: boolean;
   hipertensi: boolean;
+  penyakitGinjal: boolean;
   kehamilanPertama: boolean;
 }
 
@@ -70,6 +73,10 @@ export interface AIPrediction {
   riskLevel: RiskLevel;
   confidence: number;
   factors: string[];
+  clinicalRiskScore?: number;
+  sensorScore?: number;
+  hybridScore?: number;
+  recommendation?: string;
 }
 
 export interface DashboardStats {

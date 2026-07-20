@@ -89,10 +89,13 @@ model RiskFactor {
   id                  String    @id @default(cuid())
   screeningId         String    @unique
   screening           Screening @relation(fields: [screeningId], references: [id])
+  usiaIbu             Int       @default(0)
+  bmi                 Float     @default(0)
   diabetes            Boolean   @default(false)
   riwayatPreeklamsia  Boolean   @default(false)
   riwayatKeluarga     Boolean   @default(false)
   hipertensi          Boolean   @default(false)
+  penyakitGinjal      Boolean   @default(false)
   kehamilanPertama    Boolean   @default(false)
 }
 
