@@ -212,7 +212,9 @@ export default function HomePage() {
                     </div>
                     <div>
                       <div className="text-xs text-gray-500">Protein Urin</div>
-                      <div className="text-sm font-bold text-gray-900">0.8 g/L</div>
+                      <div className="text-sm font-bold text-gray-900">
+                        0.8 g/L <span className="text-xs font-extrabold text-[#0EA5E9] bg-sky-50 px-1.5 py-0.5 rounded ml-1 border border-sky-100">(+2 Positif)</span>
+                      </div>
                     </div>
                   </div>
                 </div>

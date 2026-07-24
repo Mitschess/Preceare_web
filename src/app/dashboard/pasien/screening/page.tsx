@@ -45,6 +45,17 @@ export default function PasienScreeningPage() {
               </div>
             </div>
           </div>
+
+          {/* AI Clinical Narrative Summary */}
+          <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-sky-50 via-blue-50 to-indigo-50 border border-sky-200">
+            <div className="flex items-center gap-2 text-sky-800 font-bold text-xs uppercase mb-1">
+              <Activity className="w-4 h-4 text-[#0EA5E9]" />
+              Kesimpulan Penjelasan AI:
+            </div>
+            <p className="text-xs sm:text-sm text-gray-800 leading-relaxed font-medium">
+              "Berdasarkan analisis AI, dengan usia kehamilan {patient.usiaKehamilan} minggu, kadar protein urin {latestScreening.proteinUrin} g/L, serta tekanan darah {latestScreening.systolic}/{latestScreening.diastolic} mmHg, maka sistem AI mengindikasikan Anda berada pada kondisi <strong className="text-sky-900">{getRiskLabel(latestScreening.aiResult)}</strong>."
+            </p>
+          </div>
         </div>
       )}
 
@@ -68,8 +79,11 @@ export default function PasienScreeningPage() {
               {latestScreening.proteinUrin}
               <span className="text-sm font-normal text-gray-400"> g/L</span>
             </div>
+            <div className="text-xs font-bold text-[#0EA5E9] bg-sky-50 px-2 py-0.5 rounded-md inline-block mt-1">
+              {Number(latestScreening.proteinUrin) >= 1.0 ? "+2 Positif Sedang" : Number(latestScreening.proteinUrin) >= 0.3 ? "+1 Positif" : "Negatif / Trace"}
+            </div>
             <p className="text-xs text-gray-500 mt-2">
-              Kadar protein urin di luar batas normal (&gt;0.3 g/L) menunjukkan tanda awal preeklamsia.
+              Kadar protein urin di luar batas normal (&gt;0.3 g/L atau +1) menunjukkan tanda awal proteinuria pada preeklamsia.
             </p>
           </div>
 

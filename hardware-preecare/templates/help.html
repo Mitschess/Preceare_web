@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}PRECARE - Bantuan{% endblock %}
+{% block page_title %}Bantuan{% endblock %}
+
+{% block content %}
+<div class="help-container">
+    <div class="help-card">
+        <div class="help-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28" height="28">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+            </svg>
+        </div>
+        <h3>Cara Melakukan Skrining</h3>
+        <ol class="help-steps">
+            <li>Masukkan data pasien (nama, umur, tinggi & berat badan, usia kehamilan)</li>
+            <li>Isi faktor risiko yang dimiliki pasien</li>
+            <li>Pasang manset pada lengan dan tekan "Mulai Pengukuran"</li>
+            <li>Masukkan strip urin ke slot dan tekan "Baca Strip"</li>
+            <li>Lihat dan simpan hasil skrining</li>
+        </ol>
+    </div>
+
+    <div class="help-card">
+        <div class="help-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28" height="28">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+        </div>
+        <h3>Kategori Risiko</h3>
+        <div class="risk-explanation">
+            <div class="risk-exp-item low">
+                <span class="risk-exp-badge">Rendah</span>
+                <span>Skor &lt; 25 — Lanjutkan pemeriksaan rutin</span>
+            </div>
+            <div class="risk-exp-item medium">
+                <span class="risk-exp-badge">Sedang</span>
+                <span>Skor 25-49 — Pemantauan lebih intensif diperlukan</span>
+            </div>
+            <div class="risk-exp-item high">
+                <span class="risk-exp-badge">Tinggi</span>
+                <span>Skor ≥ 50 — Rujuk ke dokter spesialis segera</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="help-card">
+        <div class="help-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28" height="28">
+                <rect x="6" y="2" width="12" height="20" rx="2"/>
+                <line x1="10" y1="8" x2="14" y2="8"/>
+            </svg>
+        </div>
+        <h3>Interpretasi Protein Urin</h3>
+        <div class="protein-explanation">
+            <div class="protein-row"><span class="protein-level">-</span><span>Negatif (Normal)</span></div>
+            <div class="protein-row"><span class="protein-level">±</span><span>Trace</span></div>
+            <div class="protein-row"><span class="protein-level">+1</span><span>30 mg/dL</span></div>
+            <div class="protein-row"><span class="protein-level">+2</span><span>100 mg/dL</span></div>
+            <div class="protein-row"><span class="protein-level">+3</span><span>300 mg/dL</span></div>
+            <div class="protein-row"><span class="protein-level">+4</span><span>>2000 mg/dL</span></div>
+        </div>
+    </div>
+</div>
+{% endblock %}

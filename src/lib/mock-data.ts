@@ -219,11 +219,11 @@ export function getPatientReferrals(patientId: string): Referral[] {
   return referrals.filter((r) => r.patientId === patientId);
 }
 
-// Mock AI prediction — updated to follow Hybrid CDSS approach
+// Mock AI prediction — updated to follow Hybrid CDSS approach with 10-Parameter Urine Reagent Strip
 export function mockAIPredict(data: {
   systolic: number;
   diastolic: number;
-  proteinUrin: number;
+  proteinUrin: number | string;
   usiaIbu: number;
   bmi: number;
   diabetes: boolean;
@@ -233,6 +233,15 @@ export function mockAIPredict(data: {
   penyakitGinjal: boolean;
   kehamilanPertama: boolean;
   usiaKehamilan?: number;
+  leukocytes?: string;
+  nitrite?: string;
+  urobilinogen?: string;
+  ph?: string;
+  blood?: string;
+  specificGravity?: string;
+  ketone?: string;
+  bilirubin?: string;
+  glucose?: string;
 }): {
   riskLevel: RiskLevel;
   confidence: number;
@@ -241,6 +250,7 @@ export function mockAIPredict(data: {
   sensorScore: number;
   hybridScore: number;
   recommendation: string;
+  summarySentence: string;
 } {
   const factors: string[] = [];
 
@@ -274,9 +284,39 @@ export function mockAIPredict(data: {
   if (data.diastolic >= 90) { sensorScore += 3; factors.push(`TD Diastolik Tinggi (≥90 mmHg): ${data.diastolic}`); }
   else if (data.diastolic >= 80) { sensorScore += 2; factors.push(`TD Diastolik Pre-hipertensi (≥80 mmHg): ${data.diastolic}`); }
 
-  if (data.proteinUrin >= 2.0) { sensorScore += 3; factors.push(`Protein Urin Tinggi (≥2 g/L, setara +2)`); }
-  else if (data.proteinUrin >= 0.3) { sensorScore += 2; factors.push(`Protein Urin Sedang (≥0.3 g/L, setara +1)`); }
-  else if (data.proteinUrin >= 0.15) { sensorScore += 1; factors.push(`Protein Urin Trace (≥0.15 g/L)`); }
+  // Convert protein value to numeric if string
+  let protNum = 0;
+  if (typeof data.proteinUrin === 'number') {
+    protNum = data.proteinUrin;
+  } else if (typeof data.proteinUrin === 'string') {
+    if (data.proteinUrin.includes('+3') || data.proteinUrin.includes('300')) protNum = 3.0;
+    else if (data.proteinUrin.includes('+2') || data.proteinUrin.includes('100')) protNum = 2.0;
+    else if (data.proteinUrin.includes('+1') || data.proteinUrin.includes('30')) protNum = 0.3;
+    else if (data.proteinUrin.includes('Trace')) protNum = 0.15;
+    else protNum = parseFloat(data.proteinUrin) || 0;
+  }
+
+  if (protNum >= 2.0) { sensorScore += 3; factors.push(`Protein Urin Tinggi (≥2 g/L, setara +2/+3)`); }
+  else if (protNum >= 0.3) { sensorScore += 2; factors.push(`Protein Urin Sedang (≥0.3 g/L, setara +1)`); }
+  else if (protNum >= 0.15) { sensorScore += 1; factors.push(`Protein Urin Trace (≥0.15 g/L)`); }
+
+  // Additional 10-Parameter Urine Strip Indicators from PREECARE Hardware
+  if (data.leukocytes && data.leukocytes !== 'Negatif') {
+    sensorScore += 1;
+    factors.push(`Urine Leukocytes Positive (${data.leukocytes})`);
+  }
+  if (data.blood && data.blood !== 'Negatif') {
+    sensorScore += 1;
+    factors.push(`Urine Hematuria / Blood Positive (${data.blood})`);
+  }
+  if (data.ketone && data.ketone !== 'Negatif') {
+    sensorScore += 1;
+    factors.push(`Urine Keton Positif (${data.ketone})`);
+  }
+  if (data.glucose && data.glucose !== 'Negatif') {
+    sensorScore += 1;
+    factors.push(`Urine Glukosa Positif (${data.glucose})`);
+  }
 
   // Tahap 3 – Hybrid AI Prediction
   const hybridScore = clinicalScore + sensorScore;
@@ -296,8 +336,17 @@ export function mockAIPredict(data: {
   }
 
   const baseConfidence = riskLevel === "HIGH" ? 0.85 : riskLevel === "MEDIUM" ? 0.72 : 0.90;
-  // Determine standard confidence based on scores
   const confidence = Math.round((baseConfidence + (hybridScore / 60) + Math.random() * 0.05) * 100) / 100;
+
+  const riskLabelMap: Record<RiskLevel, string> = {
+    LOW: "Risiko Rendah",
+    MEDIUM: "Risiko Sedang",
+    HIGH: "Risiko Tinggi",
+  };
+
+  const protStr = typeof data.proteinUrin === 'string' ? data.proteinUrin : `${data.proteinUrin} g/L`;
+  const gestAgeStr = data.usiaKehamilan ? ` dengan usia kehamilan ${data.usiaKehamilan} minggu` : "";
+  const summarySentence = `Berdasarkan analisis AI, dengan usia ibu ${data.usiaIbu} tahun${gestAgeStr}, kadar protein urin ${protStr}, serta tekanan darah ${data.systolic}/${data.diastolic} mmHg, maka AI mengindikasikan Anda berada pada kategori ${riskLabelMap[riskLevel]} Preeklamsia.`;
 
   return {
     riskLevel,
@@ -306,6 +355,7 @@ export function mockAIPredict(data: {
     clinicalRiskScore: clinicalScore,
     sensorScore,
     hybridScore,
-    recommendation
+    recommendation,
+    summarySentence
   };
 }

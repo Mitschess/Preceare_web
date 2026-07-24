@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PRECARE Device Screen</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/device.css">
+</head>
+<body>
+    <div class="device-viewport">
+        <!-- Main Screen Container -->
+        <main class="device-main">
+            <!-- STEP 1: Data Pasien (Tanpa Nama Pasien) -->
+            <div class="step-view active" id="view-step-1">
+                <div class="step-title-bar">
+                    <h2>1. Data Fisik Pasien</h2>
+                    <span class="step-counter">Langkah 1 dari 4</span>
+                </div>
+                
+                <div class="form-body">
+                    <div class="input-grid">
+                        <div class="input-row full" style="grid-column: 1 / -1;">
+                            <label>Nama Pasien</label>
+                            <div class="input-unit" style="padding-right: 0;">
+                                <input type="text" id="input-name" placeholder="Nama Pasien" value="Ny. Ani Wijaya" style="width: 100%;">
+                            </div>
+                        </div>
+                        <div class="input-row">
+                            <label>Umur Pasien</label>
+                            <div class="input-unit">
+                                <input type="number" id="input-age" placeholder="28" value="28" inputmode="numeric">
+                                <span>Tahun</span>
+                            </div>
+                        </div>
+                        <div class="input-row">
+                            <label>Usia Kehamilan</label>
+                            <div class="input-unit">
+                                <input type="number" id="input-ga" placeholder="26" value="26" inputmode="numeric">
+                                <span>Minggu</span>
+                            </div>
+                        </div>
+                        <div class="input-row">
+                            <label>Tinggi Badan</label>
+                            <div class="input-unit">
+                                <input type="number" id="input-height" placeholder="158" value="158" inputmode="numeric">
+                                <span>cm</span>
+                            </div>
+                        </div>
+                        <div class="input-row">
+                            <label>Berat Badan</label>
+                            <div class="input-unit">
+                                <input type="number" id="input-weight" placeholder="68" value="68" inputmode="numeric">
+                                <span>kg</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bmi-strip" id="bmi-strip">
+                        <span>BMI (Indeks Massa Tubuh): <strong id="val-bmi">27.2</strong></span>
+                        <span id="cat-bmi" class="bmi-tag">Overweight</span>
+                    </div>
+                </div>
+
+                <footer class="step-footer right-only">
+                    <button class="btn-device primary" id="btn-next-1" onclick="nextStep(2)">
+                        Selanjutnya &nbsp;&rsaquo;
+                    </button>
+                </footer>
+            </div>
+
+            <!-- STEP 2: Faktor Risiko -->
+            <div class="step-view" id="view-step-2">
+                <div class="step-title-bar">
+                    <h2>2. Faktor Risiko Medis</h2>
+                    <span class="step-counter">Langkah 2 dari 4</span>
+                </div>
+
+                <div class="risk-questions-grid">
+                    <div class="q-card">
+                        <span class="q-text">Riwayat Preeklamsia</span>
+                        <div class="radio-group" data-key="history_preeclampsia">
+                            <button type="button" class="radio-btn" data-val="1">Ya</button>
+                            <button type="button" class="radio-btn active" data-val="0">Tidak</button>
+                        </div>
+                    </div>
+
+                    <div class="q-card">
+                        <span class="q-text">Riwayat Keluarga Preeklamsia</span>
+                        <div class="radio-group" data-key="family_history">
+                            <button type="button" class="radio-btn" data-val="1">Ya</button>
+                            <button type="button" class="radio-btn active" data-val="0">Tidak</button>
+                        </div>
+                    </div>
+
+                    <div class="q-card">
+                        <span class="q-text">Diabetes Mellitus</span>
+                        <div class="radio-group" data-key="diabetes">
+                            <button type="button" class="radio-btn" data-val="1">Ya</button>
+                            <button type="button" class="radio-btn active" data-val="0">Tidak</button>
+                        </div>
+                    </div>
+
+                    <div class="q-card">
+                        <span class="q-text">Hipertensi Kronis</span>
+                        <div class="radio-group" data-key="chronic_hypertension">
+                            <button type="button" class="radio-btn" data-val="1">Ya</button>
+                            <button type="button" class="radio-btn active" data-val="0">Tidak</button>
+                        </div>
+                    </div>
+
+                    <div class="q-card">
+                        <span class="q-text">Penyakit Ginjal Kronis</span>
+                        <div class="radio-group" data-key="kidney_disease">
+                            <button type="button" class="radio-btn" data-val="1">Ya</button>
+                            <button type="button" class="radio-btn active" data-val="0">Tidak</button>
+                        </div>
+                    </div>
+
+                    <div class="q-card">
+                        <span class="q-text">Kehamilan Pertama (Nullipara)</span>
+                        <div class="radio-group" data-key="nullipara">
+                            <button type="button" class="radio-btn active" data-val="1">Ya</button>
+                            <button type="button" class="radio-btn" data-val="0">Tidak</button>
+                        </div>
+                    </div>
+                </div>
+
+                <footer class="step-footer">
+                    <button class="btn-device secondary" onclick="nextStep(1)">
+                        &lsaquo;&nbsp; Sebelumnya
+                    </button>
+                    <button class="btn-device primary" onclick="nextStep(3)">
+                        Selanjutnya &nbsp;&rsaquo;
+                    </button>
+                </footer>
+            </div>
+
+            <!-- STEP 3: Tes Tekanan Darah -->
+            <div class="step-view" id="view-step-3">
+                <div class="step-title-bar">
+                    <h2>3. Pengukuran Tekanan Darah</h2>
+                    <span class="step-counter">Langkah 3 dari 4</span>
+                </div>
+
+                <div class="hardware-test-box">
+                    <!-- Idle State -->
+                    <div class="test-state" id="bp-idle-state">
+                        <div class="test-icon-large">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#0284C7" stroke-width="1.8">
+                                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                            </svg>
+                        </div>
+                        <p class="test-desc">Pasang manset pada lengan pasien lalu tekan tombol di bawah</p>
+                        <button class="btn-device primary btn-start-test" onclick="runBPTest()">
+                            Mulai Pengukuran
+                        </button>
+                    </div>
+
+                    <!-- Working State -->
+                    <div class="test-state hidden" id="bp-working-state">
+                        <div class="spinner-ring"></div>
+                        <div class="test-status-title" id="bp-status-text">Alat Sedang Bekerja, Mohon Ditunggu...</div>
+                        <div class="live-counter">
+                            <span id="bp-live-val">0</span> <small>mmHg</small>
+                        </div>
+                        <div class="device-progress-bg">
+                            <div class="device-progress-bar" id="bp-progress-bar"></div>
+                        </div>
+                    </div>
+
+                    <!-- Result State -->
+                    <div class="test-state hidden" id="bp-result-state">
+                        <div class="result-readout-grid">
+                            <div class="readout-card">
+                                <span class="readout-label">Tekanan Darah</span>
+                                <span class="readout-val" id="res-bp-val">150/95</span>
+                                <span class="readout-unit">mmHg</span>
+                            </div>
+                            <div class="readout-card">
+                                <span class="readout-label">MAP</span>
+                                <span class="readout-val" id="res-map-val">113.3</span>
+                                <span class="readout-unit">mmHg</span>
+                            </div>
+                            <div class="readout-card">
+                                <span class="readout-label">Pulse</span>
+                                <span class="readout-val" id="res-pulse-val">78</span>
+                                <span class="readout-unit">bpm</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <footer class="step-footer">
+                    <button class="btn-device secondary" onclick="nextStep(2)">
+                        &lsaquo;&nbsp; Sebelumnya
+                    </button>
+                    <button class="btn-device primary" id="btn-next-3" onclick="nextStep(4)">
+                        Selanjutnya &nbsp;&rsaquo;
+                    </button>
+                </footer>
+            </div>
+
+            <!-- STEP 4: Tes Urine Strip (Uric 10 CF 10-Parameter Urinalysis) -->
+            <div class="step-view" id="view-step-4">
+                <div class="step-title-bar">
+                    <h2>4. Pembacaan Urinalisis (Uric 10 CF Strip)</h2>
+                    <span class="step-counter">Langkah 4 dari 4</span>
+                </div>
+
+                <div class="hardware-test-box">
+                    <!-- Idle State -->
+                    <div class="test-state" id="urine-idle-state">
+                        <div class="test-icon-large">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="1.8">
+                                <rect x="7" y="2" width="10" height="20" rx="2"/>
+                                <line x1="10" y1="6" x2="14" y2="6"/>
+                                <line x1="10" y1="10" x2="14" y2="10"/>
+                                <line x1="10" y1="14" x2="14" y2="14"/>
+                                <line x1="10" y1="18" x2="14" y2="18"/>
+                            </svg>
+                        </div>
+                        <p class="test-desc">Masukkan strip reagent Uric 10 CF ke dalam slot pembaca sensor optik</p>
+                        <button class="btn-device primary btn-start-test" onclick="runUrineTest()">
+                            Mulai Pembacaan Strip Urin
+                        </button>
+                    </div>
+
+                    <!-- Working State -->
+                    <div class="test-state hidden" id="urine-working-state">
+                        <div class="scanner-box">
+                            <div class="scanner-beam"></div>
+                        </div>
+                        <div class="test-status-title">Memindai 10 Parameter Reagent Strip, Mohon Ditunggu...</div>
+                        <div class="device-progress-bg">
+                            <div class="device-progress-bar" id="urine-progress-bar"></div>
+                        </div>
+                    </div>
+
+                    <!-- Result State: 10 Parameter Grid -->
+                    <div class="test-state hidden" id="urine-result-state" style="max-width: 900px; width: 100%;">
+                        <div class="urine-params-grid">
+                            <div class="u-param-card">
+                                <span class="up-label">GLUCOSE</span>
+                                <span class="up-val" id="res-glucose">Negatif</span>
+                            </div>
+                            <div class="u-param-card">
+                                <span class="up-label">BILIRUBIN</span>
+                                <span class="up-val" id="res-bilirubin">Negatif</span>
+                            </div>
+                            <div class="u-param-card">
+                                <span class="up-label">KETONE</span>
+                                <span class="up-val" id="res-ketone">40 mg/dL (+2)</span>
+                            </div>
+                            <div class="u-param-card">
+                                <span class="up-label">SPECIFIC GRAVITY</span>
+                                <span class="up-val" id="res-sg">1.025</span>
+                            </div>
+                            <div class="u-param-card">
+                                <span class="up-label">BLOOD</span>
+                                <span class="up-val" id="res-blood">25 Ca CELLS/µL (+1)</span>
+                            </div>
+                            <div class="u-param-card">
+                                <span class="up-label">pH</span>
+                                <span class="up-val" id="res-ph">8.0</span>
+                            </div>
+                            <div class="u-param-card highlight-protein">
+                                <span class="up-label">PROTEIN</span>
+                                <span class="up-val" id="res-protein">Trace</span>
+                            </div>
+                            <div class="u-param-card">
+                                <span class="up-label">UROBILINOGEN</span>
+                                <span class="up-val" id="res-urobilinogen">1 mg/dL</span>
+                            </div>
+                            <div class="u-param-card">
+                                <span class="up-label">NITRITE</span>
+                                <span class="up-val" id="res-nitrite">Positif</span>
+                            </div>
+                            <div class="u-param-card">
+                                <span class="up-label">LEUKOCYTES</span>
+                                <span class="up-val" id="res-leukocytes">70 Ca CELLS/µL</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <footer class="step-footer">
+                    <button class="btn-device secondary" onclick="nextStep(3)">
+                        &lsaquo;&nbsp; Sebelumnya
+                    </button>
+                    <button class="btn-device primary" id="btn-next-4" onclick="showFinalResultScreen()">
+                        Lihat Hasil &nbsp;&rsaquo;
+                    </button>
+                </footer>
+            </div>
+
+            <!-- FINAL SCREEN: HASIL PEMERIKSAAN (HASIL TEKANAN DARAH, SKOR RISIKO & HASIL 10 PARAMETER URIN) -->
+            <div class="step-view" id="view-step-final">
+                <div class="device-screen-result">
+                    <!-- Title Bar with blue indicator icon -->
+                    <div class="result-screen-title">
+                        <div class="blue-dash-icon">
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <h3>HASIL PEMERIKSAAN SKRINING</h3>
+                    </div>
+
+                    <!-- Summary Rows: Patient Name, BP, Risk, and Urine 10-Parameter Results -->
+                    <div class="result-rows-list">
+                        <div class="result-row-item">
+                            <span class="row-label">Nama Pasien</span>
+                            <div class="row-val-group">
+                                <span class="row-val-bold" id="final-name" style="color: var(--dev-accent-blue);">Ny. Ani Wijaya</span>
+                            </div>
+                        </div>
+
+                        <div class="result-row-item">
+                            <span class="row-label">Tekanan Darah</span>
+                            <div class="row-val-group">
+                                <span class="row-val-bold" id="final-bp">150/95</span>
+                                <span class="row-unit">mmHg (MAP: <span id="final-map">113.3</span>)</span>
+                            </div>
+                        </div>
+
+                        <!-- Full 10 Urinalysis Parameters Table / List -->
+                        <div class="urinalysis-results-box">
+                            <h4 class="u-box-title">Hasil Urinalisis (Strip Uric 10 CF)</h4>
+                            <div class="u-box-grid">
+                                <div class="u-box-item"><span class="lbl">pH</span><span class="val" id="f-ph">8.0</span></div>
+                                <div class="u-box-item"><span class="lbl">Protein</span><span class="val highlight" id="f-protein">Trace</span></div>
+                                <div class="u-box-item"><span class="lbl">Glucose</span><span class="val" id="f-glucose">Negatif</span></div>
+                                <div class="u-box-item"><span class="lbl">Bilirubin</span><span class="val" id="f-bilirubin">Negatif</span></div>
+                                <div class="u-box-item"><span class="lbl">Ketone</span><span class="val" id="f-ketone">40 mg/dL (+2)</span></div>
+                                <div class="u-box-item"><span class="lbl">Specific Gravity</span><span class="val" id="f-sg">1.025</span></div>
+                                <div class="u-box-item"><span class="lbl">Blood</span><span class="val" id="f-blood">25 Ca CELLS/µL (+1)</span></div>
+                                <div class="u-box-item"><span class="lbl">Urobilinogen</span><span class="val" id="f-urobilinogen">1 mg/dL</span></div>
+                                <div class="u-box-item"><span class="lbl">Nitrite</span><span class="val" id="f-nitrite">Positif</span></div>
+                                <div class="u-box-item"><span class="lbl">Leukocytes</span><span class="val" id="f-leukocytes">70 Ca CELLS/µL</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons matching reference style: Simpan (Blue) & Cetak (Grey) -->
+                    <div class="result-action-buttons">
+                        <button class="btn-result-action btn-simpan" id="btn-simpan" onclick="simpanData()">
+                            Simpan
+                        </button>
+                        <button class="btn-result-action btn-cetak" id="btn-cetak" onclick="cetakData()">
+                            Cetak Struk
+                        </button>
+                    </div>
+                </div>
+
+                <div class="restart-bar">
+                    <button class="btn-link-restart" onclick="restartScreening()">
+                        &lsaquo; Pemeriksaan Baru
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Notification Toast Modal -->
+        <div class="device-modal-overlay hidden" id="device-modal">
+            <div class="device-modal-box">
+                <div class="modal-check-icon" id="modal-icon-container">
+                    <svg id="modal-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="3">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </div>
+                <h4 id="modal-title">Peringatan!</h4>
+                <p id="modal-desc">Mohon isi semua data.</p>
+                <button class="btn-modal-ok" onclick="closeModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/device.js"></script>
+</body>
+</html>

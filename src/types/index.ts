@@ -1,6 +1,6 @@
 export type Role = "PASIEN" | "NAKES" | "DOKTER" | "ADMIN";
 export type RiskLevel = "LOW" | "MEDIUM" | "HIGH";
-export type ReferralStatus = "PENDING" | "ACCEPTED" | "IN_PROGRESS" | "COMPLETED" | "REJECTED";
+export type ReferralStatus = "PENDING" | "ACCEPTED" | "IN_PROGRESS" | "COMPLETED" | "REJECTED" | "CANCELLED";
 
 export interface User {
   id: string;
@@ -26,7 +26,19 @@ export interface Screening {
   patientId: string;
   systolic: number;
   diastolic: number;
-  proteinUrin: number;
+  proteinUrin: number | string;
+  pulse?: number;
+  mapValue?: number;
+  // 10-Parameter Urine Reagent Strip Indicators
+  leukocytes?: string;
+  nitrite?: string;
+  urobilinogen?: string;
+  ph?: string;
+  blood?: string;
+  specificGravity?: string;
+  ketone?: string;
+  bilirubin?: string;
+  glucose?: string;
   aiResult: RiskLevel;
   confidence: number;
   createdAt: string;
@@ -77,6 +89,19 @@ export interface AIPrediction {
   sensorScore?: number;
   hybridScore?: number;
   recommendation?: string;
+  summarySentence?: string;
+  urineIndicators?: {
+    protein: string;
+    leukocytes: string;
+    nitrite: string;
+    urobilinogen: string;
+    ph: string;
+    blood: string;
+    specificGravity: string;
+    ketone: string;
+    bilirubin: string;
+    glucose: string;
+  };
 }
 
 export interface DashboardStats {

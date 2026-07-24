@@ -50,6 +50,7 @@ export function getReferralStatusLabel(status: ReferralStatus): string {
     IN_PROGRESS: "Dalam Proses",
     COMPLETED: "Selesai",
     REJECTED: "Ditolak",
+    CANCELLED: "Dibatalkan",
   };
   return labels[status];
 }
@@ -61,6 +62,7 @@ export function getReferralStatusColor(status: ReferralStatus): string {
     IN_PROGRESS: "#0EA5E9",
     COMPLETED: "#8B5CF6",
     REJECTED: "#EF4444",
+    CANCELLED: "#64748B",
   };
   return colors[status];
 }
@@ -74,6 +76,20 @@ export function calculateAge(birthDate: string): number {
     age--;
   }
   return age;
+}
+
+export function formatProteinUrin(val: number | string): string {
+  if (typeof val === "string") {
+    if (val.includes("+") || val.toLowerCase().includes("neg")) return val;
+  }
+  const num = typeof val === "number" ? val : parseFloat(val);
+  if (isNaN(num)) return String(val);
+
+  if (num < 0.15) return `${num} g/L (Negatif)`;
+  if (num < 0.3) return `${num} g/L (Trace)`;
+  if (num < 1.0) return `${num} g/L (+1 Positif)`;
+  if (num < 3.0) return `${num} g/L (+2 Positif Sedang)`;
+  return `${num} g/L (+3 Positif Tinggi)`;
 }
 
 export function cn(...classes: (string | boolean | undefined | null)[]): string {

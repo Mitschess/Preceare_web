@@ -1,0 +1,564 @@
+{% extends "base.html" %}
+{% block title %}PRECARE - Skrining{% endblock %}
+{% block page_title %}Skrining Preeklamsia{% endblock %}
+
+{% block content %}
+<div class="screening-container">
+    <!-- Step Indicator -->
+    <div class="step-indicator" id="step-indicator">
+        <div class="step active" data-step="1" id="step-tab-1">
+            <div class="step-number">1</div>
+            <span class="step-label">Data Fisik</span>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step" data-step="2" id="step-tab-2">
+            <div class="step-number">2</div>
+            <span class="step-label">Faktor Risiko</span>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step" data-step="3" id="step-tab-3">
+            <div class="step-number">3</div>
+            <span class="step-label">Tekanan Darah</span>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step" data-step="4" id="step-tab-4">
+            <div class="step-number">4</div>
+            <span class="step-label">Urinalisis (10 Parameter)</span>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step" data-step="5" id="step-tab-5">
+            <div class="step-number">5</div>
+            <span class="step-label">Hasil</span>
+        </div>
+    </div>
+
+    <!-- Step 1: Patient Physical Data (Tanpa Nama Pasien) -->
+    <div class="step-content active" id="step-1">
+        <div class="step-panel">
+            <h2 class="panel-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="panel-icon">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+                Data Fisik Pasien
+            </h2>
+
+            <div class="form-grid">
+                <div class="form-group full-width" style="grid-column: 1 / -1;">
+                    <label class="field-label" for="patient-name">Nama Pasien</label>
+                    <input type="text" id="patient-name" class="input-field" value="Ny. Ani Wijaya" placeholder="Masukkan nama pasien" autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label class="field-label" for="patient-age">Umur Pasien</label>
+                    <div class="input-with-unit">
+                        <input type="number" id="patient-age" class="input-field" placeholder="28" value="28" min="10" max="60" inputmode="numeric">
+                        <span class="unit">Tahun</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="field-label" for="gestational-age">Usia Kehamilan</label>
+                    <div class="input-with-unit">
+                        <input type="number" id="gestational-age" class="input-field" placeholder="26" value="26" min="1" max="45" inputmode="numeric">
+                        <span class="unit">Minggu</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="field-label" for="patient-height">Tinggi Badan</label>
+                    <div class="input-with-unit">
+                        <input type="number" id="patient-height" class="input-field" placeholder="158" value="158" min="100" max="250" inputmode="numeric">
+                        <span class="unit">cm</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="field-label" for="patient-weight">Berat Badan</label>
+                    <div class="input-with-unit">
+                        <input type="number" id="patient-weight" class="input-field" placeholder="68" value="68" min="30" max="200" inputmode="numeric">
+                        <span class="unit">kg</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bmi-display" id="bmi-display">
+                <div class="bmi-label">BMI (Indeks Massa Tubuh)</div>
+                <div class="bmi-value" id="bmi-value">27.2</div>
+                <div class="bmi-category" id="bmi-category">Overweight</div>
+            </div>
+
+            <div class="step-actions">
+                <a href="/" class="btn btn-secondary" id="btn-cancel">Batal</a>
+                <button class="btn btn-primary" id="btn-next-1" onclick="goToStep(2)">
+                    Lanjut
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                        <polyline points="12 5 19 12 12 19"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 2: Risk Factors -->
+    <div class="step-content" id="step-2">
+        <div class="step-panel">
+            <h2 class="panel-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="panel-icon">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                Faktor Risiko
+            </h2>
+
+            <div class="risk-factors-list">
+                <div class="risk-factor-item" id="rf-preeclampsia">
+                    <span class="rf-label">Riwayat Preeklamsia</span>
+                    <div class="toggle-group">
+                        <button class="toggle-btn" data-value="1" onclick="toggleRiskFactor(this, 'history_preeclampsia')">Ya</button>
+                        <button class="toggle-btn active" data-value="0" onclick="toggleRiskFactor(this, 'history_preeclampsia')">Tidak</button>
+                    </div>
+                </div>
+
+                <div class="risk-factor-item" id="rf-family">
+                    <span class="rf-label">Riwayat Keluarga Preeklamsia</span>
+                    <div class="toggle-group">
+                        <button class="toggle-btn" data-value="1" onclick="toggleRiskFactor(this, 'family_history')">Ya</button>
+                        <button class="toggle-btn active" data-value="0" onclick="toggleRiskFactor(this, 'family_history')">Tidak</button>
+                    </div>
+                </div>
+
+                <div class="risk-factor-item" id="rf-diabetes">
+                    <span class="rf-label">Diabetes Mellitus</span>
+                    <div class="toggle-group">
+                        <button class="toggle-btn" data-value="1" onclick="toggleRiskFactor(this, 'diabetes')">Ya</button>
+                        <button class="toggle-btn active" data-value="0" onclick="toggleRiskFactor(this, 'diabetes')">Tidak</button>
+                    </div>
+                </div>
+
+                <div class="risk-factor-item" id="rf-hypertension">
+                    <span class="rf-label">Hipertensi Kronis</span>
+                    <div class="toggle-group">
+                        <button class="toggle-btn" data-value="1" onclick="toggleRiskFactor(this, 'chronic_hypertension')">Ya</button>
+                        <button class="toggle-btn active" data-value="0" onclick="toggleRiskFactor(this, 'chronic_hypertension')">Tidak</button>
+                    </div>
+                </div>
+
+                <div class="risk-factor-item" id="rf-kidney">
+                    <span class="rf-label">Penyakit Ginjal Kronis</span>
+                    <div class="toggle-group">
+                        <button class="toggle-btn" data-value="1" onclick="toggleRiskFactor(this, 'kidney_disease')">Ya</button>
+                        <button class="toggle-btn active" data-value="0" onclick="toggleRiskFactor(this, 'kidney_disease')">Tidak</button>
+                    </div>
+                </div>
+
+                <div class="risk-factor-item" id="rf-nullipara">
+                    <span class="rf-label">Kehamilan Pertama (Nullipara)</span>
+                    <div class="toggle-group">
+                        <button class="toggle-btn active" data-value="1" onclick="toggleRiskFactor(this, 'nullipara')">Ya</button>
+                        <button class="toggle-btn" data-value="0" onclick="toggleRiskFactor(this, 'nullipara')">Tidak</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-actions">
+                <button class="btn btn-secondary" id="btn-back-2" onclick="goToStep(1)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <line x1="19" y1="12" x2="5" y2="12"/>
+                        <polyline points="12 19 5 12 12 5"/>
+                    </svg>
+                    Kembali
+                </button>
+                <button class="btn btn-primary" id="btn-next-2" onclick="goToStep(3)">
+                    Lanjut
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                        <polyline points="12 5 19 12 12 19"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 3: Blood Pressure -->
+    <div class="step-content" id="step-3">
+        <div class="step-panel">
+            <h2 class="panel-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="panel-icon">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                </svg>
+                Pengukuran Tekanan Darah
+            </h2>
+
+            <div class="measurement-area" id="bp-measurement-area">
+                <!-- Before measurement -->
+                <div class="measurement-idle" id="bp-idle">
+                    <div class="measurement-illustration">
+                        <svg viewBox="0 0 120 120" class="bp-illustration">
+                            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--accent-primary)" stroke-width="3" opacity="0.2"/>
+                            <circle cx="60" cy="60" r="35" fill="none" stroke="var(--accent-primary)" stroke-width="2" opacity="0.1"/>
+                            <path d="M60 30 L60 90" stroke="var(--accent-primary)" stroke-width="2" opacity="0.3"/>
+                            <path d="M30 60 L90 60" stroke="var(--accent-primary)" stroke-width="2" opacity="0.3"/>
+                            <text x="60" y="55" text-anchor="middle" fill="var(--accent-primary)" font-size="14" font-weight="600">--/--</text>
+                            <text x="60" y="72" text-anchor="middle" fill="var(--text-secondary)" font-size="10">mmHg</text>
+                        </svg>
+                    </div>
+                    <p class="measurement-hint">Pastikan manset terpasang dengan benar pada lengan pasien</p>
+                    <button class="btn btn-primary btn-large" id="btn-start-bp" onclick="startBPMeasurement()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+                            <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                        Mulai Pengukuran
+                    </button>
+                </div>
+
+                <!-- During measurement -->
+                <div class="measurement-progress hidden" id="bp-progress">
+                    <div class="progress-status" id="bp-status-text">Mengisi Manset...</div>
+                    <div class="pressure-display" id="bp-pressure-display">
+                        <span class="pressure-value" id="bp-current-pressure">0</span>
+                        <span class="pressure-unit">mmHg</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="bp-progress-bar"></div>
+                    </div>
+                    <p class="progress-hint" id="bp-progress-hint">Mohon tunggu...</p>
+                </div>
+
+                <!-- After measurement -->
+                <div class="measurement-result hidden" id="bp-result">
+                    <div class="bp-result-grid">
+                        <div class="bp-result-card systolic">
+                            <span class="bp-result-label">Sistolik</span>
+                            <span class="bp-result-value" id="bp-systolic-result">150</span>
+                            <span class="bp-result-unit">mmHg</span>
+                        </div>
+                        <div class="bp-divider">/</div>
+                        <div class="bp-result-card diastolic">
+                            <span class="bp-result-label">Diastolik</span>
+                            <span class="bp-result-value" id="bp-diastolic-result">95</span>
+                            <span class="bp-result-unit">mmHg</span>
+                        </div>
+                    </div>
+                    <div class="bp-extra-info">
+                        <div class="bp-extra-item">
+                            <span class="label">MAP</span>
+                            <span class="value" id="bp-map-result">113.3</span>
+                        </div>
+                        <div class="bp-extra-item">
+                            <span class="label">Pulse</span>
+                            <span class="value" id="bp-pulse-result">78</span>
+                            <span class="sub-unit">bpm</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline" id="btn-remeasure-bp" onclick="startBPMeasurement()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                            <polyline points="23 4 23 10 17 10"/>
+                            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                        </svg>
+                        Ukur Ulang
+                    </button>
+                </div>
+            </div>
+
+            <div class="step-actions">
+                <button class="btn btn-secondary" id="btn-back-3" onclick="goToStep(2)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <line x1="19" y1="12" x2="5" y2="12"/>
+                        <polyline points="12 19 5 12 12 5"/>
+                    </svg>
+                    Kembali
+                </button>
+                <button class="btn btn-primary" id="btn-next-3" onclick="goToStep(4)">
+                    Lanjut
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                        <polyline points="12 5 19 12 12 19"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 4: Urine Protein (10 Parameter Urinalysis Strip) -->
+    <div class="step-content" id="step-4">
+        <div class="step-panel">
+            <h2 class="panel-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="panel-icon">
+                    <rect x="6" y="2" width="12" height="20" rx="2"/>
+                    <line x1="10" y1="8" x2="14" y2="8"/>
+                    <line x1="10" y1="12" x2="14" y2="12"/>
+                    <line x1="10" y1="16" x2="14" y2="16"/>
+                </svg>
+                Pembacaan Urinalisis (Uric 10 CF Strip)
+            </h2>
+
+            <div class="measurement-area" id="urine-measurement-area">
+                <!-- Before reading -->
+                <div class="measurement-idle" id="urine-idle">
+                    <div class="measurement-illustration">
+                        <svg viewBox="0 0 120 120" class="urine-illustration">
+                            <rect x="35" y="15" width="50" height="90" rx="8" fill="none" stroke="var(--accent-secondary)" stroke-width="3" opacity="0.3"/>
+                            <rect x="43" y="35" width="34" height="12" rx="3" fill="var(--accent-secondary)" opacity="0.15"/>
+                            <rect x="43" y="52" width="34" height="12" rx="3" fill="var(--accent-secondary)" opacity="0.15"/>
+                            <rect x="43" y="69" width="34" height="12" rx="3" fill="var(--accent-secondary)" opacity="0.15"/>
+                            <text x="60" y="28" text-anchor="middle" fill="var(--text-secondary)" font-size="9">STRIP 10 CF</text>
+                        </svg>
+                    </div>
+                    <p class="measurement-hint">Masukkan strip reagent 10 CF ke dalam slot pembaca optik</p>
+                    <button class="btn btn-primary btn-large" id="btn-start-urine" onclick="startUrineReading()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+                            <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                        Baca Strip
+                    </button>
+                </div>
+
+                <!-- During reading -->
+                <div class="measurement-progress hidden" id="urine-progress">
+                    <div class="progress-status">Sedang Membaca 10 Parameter Strip...</div>
+                    <div class="strip-animation" id="strip-animation">
+                        <div class="strip-scan-line"></div>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="urine-progress-bar"></div>
+                    </div>
+                    <p class="progress-hint">Mohon tunggu, jangan cabut strip...</p>
+                </div>
+
+                <!-- After reading: 10 parameters display -->
+                <div class="measurement-result hidden" id="urine-result" style="width: 100%;">
+                    <div class="urine-params-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 16px;">
+                        <div class="u-param-card" style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; text-align: center;">
+                            <span style="font-size: 11px; color: var(--text-secondary); display: block;">GLUCOSE</span>
+                            <strong style="font-size: 13px; color: var(--text-primary);" id="web-res-glucose">Negatif</strong>
+                        </div>
+                        <div class="u-param-card" style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; text-align: center;">
+                            <span style="font-size: 11px; color: var(--text-secondary); display: block;">BILIRUBIN</span>
+                            <strong style="font-size: 13px; color: var(--text-primary);" id="web-res-bilirubin">Negatif</strong>
+                        </div>
+                        <div class="u-param-card" style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; text-align: center;">
+                            <span style="font-size: 11px; color: var(--text-secondary); display: block;">KETONE</span>
+                            <strong style="font-size: 13px; color: var(--text-primary);" id="web-res-ketone">40 mg/dL (+2)</strong>
+                        </div>
+                        <div class="u-param-card" style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; text-align: center;">
+                            <span style="font-size: 11px; color: var(--text-secondary); display: block;">SPECIFIC GRAVITY</span>
+                            <strong style="font-size: 13px; color: var(--text-primary);" id="web-res-sg">1.025</strong>
+                        </div>
+                        <div class="u-param-card" style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; text-align: center;">
+                            <span style="font-size: 11px; color: var(--text-secondary); display: block;">BLOOD</span>
+                            <strong style="font-size: 13px; color: var(--text-primary);" id="web-res-blood">25 Ca CELLS/µL (+1)</strong>
+                        </div>
+                        <div class="u-param-card" style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; text-align: center;">
+                            <span style="font-size: 11px; color: var(--text-secondary); display: block;">pH</span>
+                            <strong style="font-size: 13px; color: var(--text-primary);" id="web-res-ph">8.0</strong>
+                        </div>
+                        <div class="u-param-card" style="background: rgba(239, 68, 68, 0.1); border: 1px solid #fca5a5; padding: 10px; border-radius: 8px; text-align: center;">
+                            <span style="font-size: 11px; color: var(--risk-high); display: block; font-weight: 700;">PROTEIN</span>
+                            <strong style="font-size: 13px; color: var(--risk-high);" id="web-res-protein">Trace</strong>
+                        </div>
+                        <div class="u-param-card" style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; text-align: center;">
+                            <span style="font-size: 11px; color: var(--text-secondary); display: block;">UROBILINOGEN</span>
+                            <strong style="font-size: 13px; color: var(--text-primary);" id="web-res-urobilinogen">1 mg/dL</strong>
+                        </div>
+                        <div class="u-param-card" style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; text-align: center;">
+                            <span style="font-size: 11px; color: var(--text-secondary); display: block;">NITRITE</span>
+                            <strong style="font-size: 13px; color: var(--text-primary);" id="web-res-nitrite">Positif</strong>
+                        </div>
+                        <div class="u-param-card" style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; text-align: center;">
+                            <span style="font-size: 11px; color: var(--text-secondary); display: block;">LEUKOCYTES</span>
+                            <strong style="font-size: 13px; color: var(--text-primary);" id="web-res-leukocytes">70 Ca CELLS/µL</strong>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline" id="btn-reread-urine" onclick="startUrineReading()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                            <polyline points="23 4 23 10 17 10"/>
+                            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                        </svg>
+                        Baca Ulang
+                    </button>
+                </div>
+            </div>
+
+            <div class="step-actions">
+                <button class="btn btn-secondary" id="btn-back-4" onclick="goToStep(3)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <line x1="19" y1="12" x2="5" y2="12"/>
+                        <polyline points="12 19 5 12 12 5"/>
+                    </svg>
+                    Kembali
+                </button>
+                <button class="btn btn-primary" id="btn-next-4" onclick="showResults()">
+                    Lihat Hasil
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                        <polyline points="12 5 19 12 12 19"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 5: Results -->
+    <div class="step-content" id="step-5">
+        <div class="step-panel results-panel">
+            <h2 class="panel-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="panel-icon">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <polyline points="10 9 9 9 8 9"/>
+                </svg>
+                Hasil Skrining
+            </h2>
+
+            <!-- Risk Badge -->
+            <div class="result-risk-badge" id="result-risk-badge">
+                <div class="risk-badge-inner">
+                    <span class="risk-badge-label">Tingkat Risiko Preeklamsia</span>
+                    <span class="risk-badge-value" id="result-risk-category">TINGGI</span>
+                    <span class="risk-badge-score" id="result-risk-score">Skor: 55</span>
+                </div>
+            </div>
+
+            <!-- Result Details Grid -->
+            <div class="result-details-grid">
+                <div class="result-detail-card">
+                    <div class="detail-header">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                        </svg>
+                        <span>Tekanan Darah</span>
+                    </div>
+                    <div class="detail-value" id="result-bp">150 / 95</div>
+                    <div class="detail-sub" id="result-map">MAP: 113.3</div>
+                </div>
+
+                <div class="result-detail-card">
+                    <div class="detail-header">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                            <rect x="6" y="2" width="12" height="20" rx="2"/>
+                            <line x1="10" y1="12" x2="14" y2="12"/>
+                        </svg>
+                        <span>Protein Urin</span>
+                    </div>
+                    <div class="detail-value" id="result-protein">100 mg/dL (+2)</div>
+                </div>
+
+                <div class="result-detail-card">
+                    <div class="detail-header">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        <span>BMI</span>
+                    </div>
+                    <div class="detail-value" id="result-bmi">27.2</div>
+                </div>
+
+                <div class="result-detail-card">
+                    <div class="detail-header">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                        <span>Pulse</span>
+                    </div>
+                    <div class="detail-value" id="result-pulse">78 bpm</div>
+                </div>
+            </div>
+
+            <!-- Full 10 Urinalysis Box -->
+            <div style="background-color: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); padding: 16px; margin-top: 14px;">
+                <h4 style="font-size: 14px; font-weight: 700; color: var(--accent-primary); margin-bottom: 10px;">Detail Hasil Urinalisis (Strip Uric 10 CF)</h4>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; font-size: 13px;">
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">
+                        <span style="color: var(--text-secondary);">pH:</span>
+                        <strong id="w-f-ph">8.0</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">
+                        <span style="color: var(--text-secondary);">Protein:</span>
+                        <strong style="color: var(--risk-high);" id="w-f-protein">Trace</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">
+                        <span style="color: var(--text-secondary);">Glucose:</span>
+                        <strong id="w-f-glucose">Negatif</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">
+                        <span style="color: var(--text-secondary);">Bilirubin:</span>
+                        <strong id="w-f-bilirubin">Negatif</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">
+                        <span style="color: var(--text-secondary);">Ketone:</span>
+                        <strong id="w-f-ketone">40 mg/dL (+2)</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">
+                        <span style="color: var(--text-secondary);">Specific Gravity:</span>
+                        <strong id="w-f-sg">1.025</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">
+                        <span style="color: var(--text-secondary);">Blood:</span>
+                        <strong id="w-f-blood">25 Ca CELLS/µL (+1)</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">
+                        <span style="color: var(--text-secondary);">Urobilinogen:</span>
+                        <strong id="w-f-urobilinogen">1 mg/dL</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">
+                        <span style="color: var(--text-secondary);">Nitrite:</span>
+                        <strong id="w-f-nitrite">Positif</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">
+                        <span style="color: var(--text-secondary);">Leukocytes:</span>
+                        <strong id="w-f-leukocytes">70 Ca CELLS/µL</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Patient Info Summary -->
+            <div class="result-patient-summary" id="result-patient-summary">
+                <span class="rps-name" id="result-patient-name">Pasien</span>
+                <span class="rps-info" id="result-patient-info">28 Tahun · UK 26 Minggu</span>
+            </div>
+
+            <div class="step-actions result-actions">
+                <button class="btn btn-secondary" id="btn-save-result" onclick="saveScreening()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                        <polyline points="17 21 17 13 7 13 7 21"/>
+                        <polyline points="7 3 7 8 15 8"/>
+                    </svg>
+                    Simpan Data
+                </button>
+                <button class="btn btn-outline" id="btn-print-result" onclick="printResult()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <polyline points="6 9 6 2 18 2 18 9"/>
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                        <rect x="6" y="14" width="12" height="8"/>
+                    </svg>
+                    Cetak
+                </button>
+                <a href="/" class="btn btn-primary" id="btn-done">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    Selesai
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast notification -->
+<div class="toast hidden" id="toast">
+    <span id="toast-message"></span>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/screening.js"></script>
+{% endblock %}

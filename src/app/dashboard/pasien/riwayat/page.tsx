@@ -2,7 +2,7 @@
 
 import { FileText, Download, Calendar, Filter, Heart, Droplets } from "lucide-react";
 import { patients, getPatientScreenings } from "@/lib/mock-data";
-import { getRiskLabel, formatDate, formatShortDate } from "@/lib/utils";
+import { getRiskLabel, formatDate, formatShortDate, formatProteinUrin } from "@/lib/utils";
 import {
   ResponsiveContainer,
   LineChart,
@@ -97,7 +97,7 @@ export default function PasienRiwayatPage() {
                       </td>
                       <td>
                         <span className="font-mono text-sm font-semibold">
-                          {s.proteinUrin} <span className="text-xs text-gray-400 font-normal">g/L</span>
+                          {formatProteinUrin(s.proteinUrin)}
                         </span>
                       </td>
                       <td>
@@ -132,7 +132,12 @@ export default function PasienRiwayatPage() {
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-500">Protein Urin Rerata</span>
                 <span className="text-sm font-bold text-gray-900">
-                  {(screenings.reduce((acc, s) => acc + s.proteinUrin, 0) / screenings.length).toFixed(2)} g/L
+                  {(
+                    screenings.reduce(
+                      (acc, s) => acc + (typeof s.proteinUrin === "number" ? s.proteinUrin : parseFloat(String(s.proteinUrin)) || 0),
+                      0
+                    ) / screenings.length
+                  ).toFixed(2)} g/L
                 </span>
               </div>
             </div>

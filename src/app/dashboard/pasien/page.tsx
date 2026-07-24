@@ -17,7 +17,7 @@ import {
   Baby,
 } from "lucide-react";
 import { patients, getPatientScreenings, getLatestScreening, getPatientReferrals } from "@/lib/mock-data";
-import { getRiskLabel, getRiskColor, formatDate, formatShortDate, getReferralStatusLabel, getReferralStatusColor, calculateAge } from "@/lib/utils";
+import { getRiskLabel, getRiskColor, formatDate, formatShortDate, getReferralStatusLabel, getReferralStatusColor, calculateAge, formatProteinUrin } from "@/lib/utils";
 import { Screening, Referral } from "@/types";
 import {
   LineChart,
@@ -68,7 +68,7 @@ export default function PasienDashboard() {
               </div>
               <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-3 sm:px-4 sm:py-3">
                 <div className="text-[10px] sm:text-xs text-white/60">Protein Urin</div>
-                <div className="text-lg sm:text-xl font-bold">{latestScreening.proteinUrin} <span className="text-xs sm:text-sm font-normal text-white/60">g/L</span></div>
+                <div className="text-sm sm:text-base font-bold">{formatProteinUrin(latestScreening.proteinUrin)}</div>
               </div>
               <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-3 sm:px-4 sm:py-3">
                 <div className="text-[10px] sm:text-xs text-white/60">Status Risiko</div>
@@ -194,7 +194,7 @@ export default function PasienDashboard() {
                 </div>
                 <div>
                   <span className="text-gray-400">Protein: </span>
-                  <span className="font-semibold">{latestScreening.proteinUrin} g/L</span>
+                  <span className="font-semibold">{formatProteinUrin(latestScreening.proteinUrin)}</span>
                 </div>
                 <div>
                   <span className="text-gray-400">Waktu: </span>
@@ -337,7 +337,7 @@ export default function PasienDashboard() {
                   </td>
                   <td><span className="font-mono">{s.systolic}</span></td>
                   <td><span className="font-mono">{s.diastolic}</span></td>
-                  <td><span className="font-mono">{s.proteinUrin} g/L</span></td>
+                  <td><span className="font-mono">{formatProteinUrin(s.proteinUrin)}</span></td>
                   <td>
                     <span className={`badge ${s.aiResult === "HIGH" ? "risk-high" : s.aiResult === "MEDIUM" ? "risk-medium" : "risk-low"} whitespace-nowrap`}>
                       {getRiskLabel(s.aiResult)}

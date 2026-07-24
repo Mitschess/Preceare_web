@@ -20,7 +20,7 @@ import {
   getDashboardStats,
   getLatestScreening,
 } from "@/lib/mock-data";
-import { getRiskLabel, formatDateTime, cn } from "@/lib/utils";
+import { getRiskLabel, formatDateTime, formatProteinUrin, cn } from "@/lib/utils";
 import Link from "next/link";
 
 export default function NakesDashboard() {
@@ -193,7 +193,7 @@ export default function NakesDashboard() {
                       </span>
                     </td>
                     <td>
-                      <span className="font-mono text-sm">{s.proteinUrin} g/L</span>
+                      <span className="font-mono text-sm">{formatProteinUrin(s.proteinUrin)}</span>
                     </td>
                     <td>
                       <span className={`badge ${s.aiResult === "HIGH" ? "risk-high" : s.aiResult === "MEDIUM" ? "risk-medium" : "risk-low"}`}>
@@ -268,7 +268,7 @@ export default function NakesDashboard() {
                   </div>
                   <div>
                     <div className="text-gray-500 text-xs">Protein</div>
-                    <div className="font-semibold">{p.latest!.proteinUrin} g/L</div>
+                    <div className="font-semibold text-xs">{formatProteinUrin(p.latest!.proteinUrin)}</div>
                   </div>
                   <div>
                     <div className="text-gray-500 text-xs">Confidence</div>

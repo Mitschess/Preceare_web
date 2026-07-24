@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}PRECARE - Pengaturan{% endblock %}
+{% block page_title %}Pengaturan{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+    <div class="settings-card">
+        <h3 class="settings-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                <line x1="8" y1="21" x2="16" y2="21"/>
+                <line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+            Tampilan
+        </h3>
+        <div class="setting-item">
+            <div class="setting-info">
+                <span class="setting-label">Kecerahan Layar</span>
+                <span class="setting-value" id="brightness-value">80%</span>
+            </div>
+            <input type="range" min="20" max="100" value="80" class="setting-slider" id="brightness-slider">
+        </div>
+    </div>
+
+    <div class="settings-card">
+        <h3 class="settings-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            Perangkat
+        </h3>
+        <div class="setting-item">
+            <div class="setting-info">
+                <span class="setting-label">Sensor Tekanan (ADS1115)</span>
+                <span class="setting-status connected">Terhubung</span>
+            </div>
+        </div>
+        <div class="setting-item">
+            <div class="setting-info">
+                <span class="setting-label">Sensor Warna (TCS3200)</span>
+                <span class="setting-status connected">Terhubung</span>
+            </div>
+        </div>
+        <div class="setting-item">
+            <div class="setting-info">
+                <span class="setting-label">Printer Thermal</span>
+                <span class="setting-status disconnected">Tidak Terhubung</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="settings-card">
+        <h3 class="settings-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="16" x2="12" y2="12"/>
+                <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+            Tentang
+        </h3>
+        <div class="about-info">
+            <div class="about-row"><span>Versi</span><span>1.0.0</span></div>
+            <div class="about-row"><span>Platform</span><span>Raspberry Pi 4</span></div>
+            <div class="about-row"><span>Resolusi</span><span>1024 × 600</span></div>
+            <div class="about-row"><span>Database</span><span>SQLite</span></div>
+        </div>
+    </div>
+</div>
+{% endblock %}

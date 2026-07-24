@@ -1,6 +1,6 @@
 "use client";
 
-import { Send, Clock, Building2, ArrowRight, Plus, CheckCircle, AlertCircle, Loader, X } from "lucide-react";
+import { Send, Clock, Building2, ArrowRight, Plus, CheckCircle, AlertCircle, Loader, X, XCircle, AlertTriangle } from "lucide-react";
 import { referrals, patients, facilities } from "@/lib/mock-data";
 import { getReferralStatusLabel, getReferralStatusColor, formatDate } from "@/lib/utils";
 import { useState, useEffect, Suspense } from "react";
@@ -16,12 +16,36 @@ function RujukanContent() {
   const [selectedFacilityId, setSelectedFacilityId] = useState("");
   const [notes, setNotes] = useState("");
 
+  const [cancelModalReferralId, setCancelModalReferralId] = useState<string | null>(null);
+  const [cancelReason, setCancelReason] = useState("");
+
   const statusIcons: Record<string, React.ReactNode> = {
     PENDING: <Clock className="w-4 h-4" />,
     ACCEPTED: <CheckCircle className="w-4 h-4" />,
     IN_PROGRESS: <Loader className="w-4 h-4 animate-spin" />,
     COMPLETED: <CheckCircle className="w-4 h-4" />,
     REJECTED: <X className="w-4 h-4" />,
+    CANCELLED: <XCircle className="w-4 h-4 text-slate-500" />,
+  };
+
+  const handleConfirmCancel = () => {
+    if (!cancelModalReferralId) return;
+    setReferralList((prev) =>
+      prev.map((r) => {
+        if (r.id === cancelModalReferralId) {
+          const addedNotes = cancelReason ? `\n\n[Dibatalkan oleh Nakes]: ${cancelReason}` : "\n\n[Dibatalkan oleh Nakes]";
+          return {
+            ...r,
+            status: "CANCELLED",
+            notes: (r.notes || "") + addedNotes,
+            updatedAt: new Date().toISOString(),
+          };
+        }
+        return r;
+      })
+    );
+    setCancelModalReferralId(null);
+    setCancelReason("");
   };
 
   useEffect(() => {
@@ -149,16 +173,77 @@ function RujukanContent() {
                 )}
               </div>
 
-              <div className="text-right">
-                <div className="flex items-center gap-1 text-xs text-gray-400 justify-end">
+              <div className="text-right flex flex-col items-end justify-between gap-3">
+                <div className="flex items-center gap-1 text-xs text-gray-400">
                   <Clock className="w-3 h-3" />
                   {formatDate(r.createdAt)}
                 </div>
+
+                {(r.status === "PENDING" || r.status === "IN_PROGRESS") && (
+                  <button
+                    onClick={() => {
+                      setCancelModalReferralId(r.id);
+                      setCancelReason("");
+                    }}
+                    className="px-3 py-1.5 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                  >
+                    <XCircle className="w-3.5 h-3.5" />
+                    Batalkan Rujukan
+                  </button>
+                )}
               </div>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Cancel Confirmation Modal */}
+      {cancelModalReferralId && (
+        <div className="modal-overlay" onClick={() => setCancelModalReferralId(null)}>
+          <div className="modal-content max-w-md" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-3 text-red-600 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">Batalkan Rujukan Pasien?</h3>
+                <p className="text-xs text-gray-500">Tindakan ini akan mengubah status rujukan menjadi Dibatalkan.</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Alasan Pembatalan (Opsional)
+                </label>
+                <textarea
+                  value={cancelReason}
+                  onChange={(e) => setCancelReason(e.target.value)}
+                  placeholder="Contoh: Kondisi pasien membaik, kesalahan memilih rumah sakit tujuan..."
+                  className="input !h-24 resize-none text-xs py-2"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setCancelModalReferralId(null)}
+                  className="btn btn-ghost text-xs"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmCancel}
+                  className="btn bg-red-600 hover:bg-red-700 text-white text-xs font-bold"
+                >
+                  Ya, Batalkan Rujukan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* New Referral Modal */}
       {showModal && (
