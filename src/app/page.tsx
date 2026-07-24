@@ -38,8 +38,8 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
-              {/* <Heart className="w-5 h-5 text-white" /> */}
-              <Image src="/icon.png" alt="Logo PREECARE" width={100} height={100} className="object-contain p-1 rounded-xl" />
+              {<Heart className="w-5 h-5 text-white" />}
+              {/* <Image src="/icon.png" alt="Logo PREECARE" width={100} height={100} className="object-contain p-1 rounded-xl" /> */}
             </div>
             <span className="text-xl font-bold tracking-tight">
               <span className={scrolled ? "text-[#0F172A]" : "text-white"}>PREE</span>

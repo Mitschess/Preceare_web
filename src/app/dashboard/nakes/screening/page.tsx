@@ -76,7 +76,8 @@ export default function ScreeningPage() {
     factors: string[];
     clinicalRiskScore: number;
     sensorScore: number;
-    hybridScore: number;
+    totalRuleScore?: number;
+    hybridScore?: number;
     recommendation: string;
     summarySentence: string;
   } | null>(null);
@@ -291,7 +292,7 @@ export default function ScreeningPage() {
       <div>
         <h2 className="text-2xl font-bold text-gray-900">Screening Baru (CDSS Panel)</h2>
         <p className="text-sm text-gray-500 mt-1">
-          Sistem Pendukung Keputusan Klinis (Hybrid CDSS) terintegrasi Hardware PREECARE & 10 Indikator Urin
+          Sistem Pendukung Keputusan Klinis (Rule-Based CDSS) terintegrasi Hardware PREECARE & 10 Indikator Urin
         </p>
       </div>
 
@@ -310,7 +311,7 @@ export default function ScreeningPage() {
         {[
           { num: 1, label: "Koneksi Alat Hardware" },
           { num: 2, label: "Faktor Risiko & 10 Urin" },
-          { num: 3, label: "Hybrid CDSS AI" },
+          { num: 3, label: "Rule-Based Decision" },
         ].map((s, i) => (
           <div key={s.num} className="flex items-center gap-3 flex-1">
             <div
@@ -684,19 +685,19 @@ export default function ScreeningPage() {
             </button>
             <button onClick={handlePredict} className="btn btn-primary shadow-md shadow-blue-200">
               <Brain className="w-4 h-4" />
-              Jalankan Hybrid AI Predictor
+              Jalankan Rule-Based Decision
             </button>
           </div>
         </div>
       )}
 
-      {/* Step 3: Hybrid CDSS AI Results */}
+      {/* Step 3: Rule-Based Decision Results */}
       {step === 3 && loading && (
         <div className="card p-16 text-center animate-fadeIn">
           <div className="w-20 h-20 rounded-3xl gradient-primary flex items-center justify-center mx-auto mb-6 animate-spin">
             <Brain className="w-10 h-10 text-white" />
           </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">Hybrid AI CDSS Menganalisis...</h3>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">Rule-Based Decision System Menganalisis...</h3>
           <p className="text-sm text-gray-500">Mengkorelasi Anamnesis LCD, TD Hardware, & 10 Indikator Urin</p>
           <div className="mt-6 w-48 mx-auto">
             <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
@@ -714,7 +715,7 @@ export default function ScreeningPage() {
             style={{ borderColor: getRiskColor(result.riskLevel) + "50" }}
           >
             <div className="text-center pb-6 border-b border-gray-100">
-              <span className="text-xs uppercase font-extrabold tracking-widest text-[#0EA5E9]">Tahap 3 – Hybrid AI Prediction</span>
+              <span className="text-xs uppercase font-extrabold tracking-widest text-[#0EA5E9]">Tahap 3 – Rule-Based Decision</span>
               <div
                 className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mt-4 mb-3"
                 style={{ background: getRiskColor(result.riskLevel) + "15" }}
@@ -731,7 +732,7 @@ export default function ScreeningPage() {
                 {getRiskLabel(result.riskLevel)}
               </h3>
               <p className="text-sm text-gray-500 mt-1">
-                Confidence AI Engine: <strong style={{ color: getRiskColor(result.riskLevel) }}>{Math.round(result.confidence * 100)}%</strong>
+                Akurasi Rule-Based Engine: <strong style={{ color: getRiskColor(result.riskLevel) }}>{Math.round(result.confidence * 100)}%</strong>
               </p>
 
               {/* CDSS Referral Box */}
@@ -757,7 +758,7 @@ export default function ScreeningPage() {
                 <div className="mt-4 max-w-xl mx-auto p-4 rounded-2xl bg-gradient-to-r from-sky-50 via-blue-50 to-indigo-50 border border-sky-200 text-left shadow-sm">
                   <div className="flex items-center gap-2 text-sky-800 font-bold text-xs uppercase mb-1">
                     <Brain className="w-4 h-4 text-[#0EA5E9]" />
-                    Penjelasan Naratif AI (Explainable AI Summary):
+                    Penjelasan Naratif Rule-Based (Rule-Based Decision Summary):
                   </div>
                   <p className="text-xs sm:text-sm text-gray-800 leading-relaxed font-medium">
                     "{result.summarySentence}"
@@ -766,7 +767,7 @@ export default function ScreeningPage() {
               )}
             </div>
 
-            {/* Split Clinical & Sensor scores showing the hybrid process */}
+            {/* Split Clinical & Sensor scores showing the rule-based process */}
             <div className="grid md:grid-cols-3 gap-6 py-6 border-b border-gray-100 text-left">
               <div className="p-4 rounded-2xl bg-purple-50/50 border border-purple-100">
                 <div className="flex items-center justify-between mb-2">
@@ -790,12 +791,12 @@ export default function ScreeningPage() {
 
               <div className="p-4 rounded-2xl bg-sky-50/50 border border-sky-100">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold text-sky-900">Hybrid AI Total Score</span>
+                  <span className="text-xs font-bold text-sky-900">Total Rule-Based Score</span>
                   <span className="text-lg font-extrabold text-sky-700 bg-white shadow-sm border border-sky-200 rounded-lg px-2.5 py-0.5">
-                    {result.hybridScore}/29
+                    {result.totalRuleScore ?? result.hybridScore}/29
                   </span>
                 </div>
-                <p className="text-xs text-gray-500">Mengkombinasikan skor anamnesis dan sensor objektif untuk memetakan level risiko preeklamsia.</p>
+                <p className="text-xs text-gray-500">Mengkombinasikan skor anamnesis dan sensor objektif berbasis aturan klinis untuk memetakan level risiko preeklamsia.</p>
               </div>
             </div>
 

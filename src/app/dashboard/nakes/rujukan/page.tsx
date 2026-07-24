@@ -61,7 +61,7 @@ function RujukanContent() {
       setShowModal(true);
 
       // Pre-fill notes with CDSS analysis
-      let autoNotes = "Rujukan otomatis dari skrining Hybrid CDSS PREECARE.\n";
+      let autoNotes = "Rujukan otomatis dari skrining Rule-Based CDSS PREECARE.\n";
       if (systolic && diastolic) {
         autoNotes += `• Tekanan Darah: ${systolic}/${diastolic} mmHg (Risiko Tinggi)\n`;
       }
@@ -69,7 +69,7 @@ function RujukanContent() {
         autoNotes += `• Protein Urin: ${proteinUrin} g/L\n`;
       }
       if (confidence) {
-        autoNotes += `• Confidence AI: ${confidence}%\n`;
+        autoNotes += `• Tingkat Keyakinan Rule-Based: ${confidence}%\n`;
       }
       autoNotes += "• Rekomendasi: Segera lakukan pemeriksaan penunjang di faskes lanjutan.";
       setNotes(autoNotes);

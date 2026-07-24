@@ -87,6 +87,7 @@ export interface AIPrediction {
   factors: string[];
   clinicalRiskScore?: number;
   sensorScore?: number;
+  totalRuleScore?: number;
   hybridScore?: number;
   recommendation?: string;
   summarySentence?: string;

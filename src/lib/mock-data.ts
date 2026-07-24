@@ -219,7 +219,7 @@ export function getPatientReferrals(patientId: string): Referral[] {
   return referrals.filter((r) => r.patientId === patientId);
 }
 
-// Mock AI prediction — updated to follow Hybrid CDSS approach with 10-Parameter Urine Reagent Strip
+// Mock Rule-Based Decision System — Clinical Decision Support System (CDSS)
 export function mockAIPredict(data: {
   systolic: number;
   diastolic: number;
@@ -248,95 +248,107 @@ export function mockAIPredict(data: {
   factors: string[];
   clinicalRiskScore: number;
   sensorScore: number;
+  totalRuleScore: number;
   hybridScore: number;
   recommendation: string;
   summarySentence: string;
 } {
   const factors: string[] = [];
+  const matchedRules: string[] = [];
 
-  // Tahap 1 – Clinical Risk Scoring (Maternal Risk Factors)
-  let clinicalScore = 0;
-  
-  if (data.usiaIbu >= 35) { clinicalScore += 2; factors.push(`Usia Ibu berisiko ≥35 tahun (${data.usiaIbu} tahun)`); }
-  else if (data.usiaIbu < 20) { clinicalScore += 1; factors.push(`Usia Ibu muda <20 tahun (${data.usiaIbu} tahun)`); }
-
-  if (data.bmi >= 30) { clinicalScore += 2; factors.push(`BMI Obesitas (${data.bmi.toFixed(1)} kg/m²)`); }
-  else if (data.bmi >= 25) { clinicalScore += 1; factors.push(`BMI Overweight (${data.bmi.toFixed(1)} kg/m²)`); }
-
-  if (data.riwayatPreeklamsia) { clinicalScore += 3; factors.push("Riwayat preeklamsia sebelumnya"); }
-  if (data.riwayatKeluarga) { clinicalScore += 2; factors.push("Riwayat keluarga dengan preeklamsia"); }
-  if (data.diabetes) { clinicalScore += 2; factors.push("Penyakit Diabetes Mellitus"); }
-  if (data.hipertensi) { clinicalScore += 3; factors.push("Penyakit Hipertensi Kronis"); }
-  if (data.penyakitGinjal) { clinicalScore += 3; factors.push("Penyakit Ginjal Kronis"); }
-  if (data.kehamilanPertama) { clinicalScore += 1; factors.push("Kehamilan pertama (Nullipara)"); }
-
-  const gestAge = data.usiaKehamilan || 30; // Fallback to 30 weeks if not provided
-  if (gestAge > 30) { clinicalScore += 2; factors.push(`Usia Kehamilan trimester ketiga (${gestAge} minggu)`); }
-  else if (gestAge > 20) { clinicalScore += 1; factors.push(`Usia Kehamilan trimester kedua (${gestAge} minggu)`); }
-
-  // Tahap 2 – Sensor Measurement (Objective Metrics)
-  let sensorScore = 0;
-  
-  if (data.systolic >= 140) { sensorScore += 3; factors.push(`TD Sistolik Tinggi (≥140 mmHg): ${data.systolic}`); }
-  else if (data.systolic >= 130) { sensorScore += 2; factors.push(`TD Sistolik Pre-hipertensi (≥130 mmHg): ${data.systolic}`); }
-  else if (data.systolic >= 120) { sensorScore += 1; factors.push(`TD Sistolik Normal-tinggi (≥120 mmHg): ${data.systolic}`); }
-
-  if (data.diastolic >= 90) { sensorScore += 3; factors.push(`TD Diastolik Tinggi (≥90 mmHg): ${data.diastolic}`); }
-  else if (data.diastolic >= 80) { sensorScore += 2; factors.push(`TD Diastolik Pre-hipertensi (≥80 mmHg): ${data.diastolic}`); }
-
-  // Convert protein value to numeric if string
+  // Parse Protein Urin to quantitative & dipstick grade
   let protNum = 0;
+  let isProteinuriaAlert = false;
+  let isSevereProteinuria = false;
+
   if (typeof data.proteinUrin === 'number') {
     protNum = data.proteinUrin;
+    isProteinuriaAlert = protNum >= 0.3;
+    isSevereProteinuria = protNum >= 1.0;
   } else if (typeof data.proteinUrin === 'string') {
-    if (data.proteinUrin.includes('+3') || data.proteinUrin.includes('300')) protNum = 3.0;
-    else if (data.proteinUrin.includes('+2') || data.proteinUrin.includes('100')) protNum = 2.0;
-    else if (data.proteinUrin.includes('+1') || data.proteinUrin.includes('30')) protNum = 0.3;
-    else if (data.proteinUrin.includes('Trace')) protNum = 0.15;
-    else protNum = parseFloat(data.proteinUrin) || 0;
+    const pStr = data.proteinUrin.toLowerCase();
+    if (pStr.includes('+3') || pStr.includes('300')) { protNum = 3.0; isProteinuriaAlert = true; isSevereProteinuria = true; }
+    else if (pStr.includes('+2') || pStr.includes('100')) { protNum = 2.0; isProteinuriaAlert = true; isSevereProteinuria = true; }
+    else if (pStr.includes('+1') || pStr.includes('30')) { protNum = 0.3; isProteinuriaAlert = true; }
+    else if (pStr.includes('trace') || pStr.includes('15')) { protNum = 0.15; }
+    else { protNum = parseFloat(data.proteinUrin) || 0; }
+    if (protNum >= 0.3) isProteinuriaAlert = true;
+    if (protNum >= 1.0) isSevereProteinuria = true;
   }
 
-  if (protNum >= 2.0) { sensorScore += 3; factors.push(`Protein Urin Tinggi (≥2 g/L, setara +2/+3)`); }
-  else if (protNum >= 0.3) { sensorScore += 2; factors.push(`Protein Urin Sedang (≥0.3 g/L, setara +1)`); }
-  else if (protNum >= 0.15) { sensorScore += 1; factors.push(`Protein Urin Trace (≥0.15 g/L)`); }
+  const isSevereHypertension = data.systolic >= 160 || data.diastolic >= 110;
+  const isHypertension = data.systolic >= 140 || data.diastolic >= 90;
+  const isPreHypertension = (data.systolic >= 130 && data.systolic < 140) || (data.diastolic >= 80 && data.diastolic < 90);
 
-  // Additional 10-Parameter Urine Strip Indicators from PREECARE Hardware
-  if (data.leukocytes && data.leukocytes !== 'Negatif') {
-    sensorScore += 1;
-    factors.push(`Urine Leukocytes Positive (${data.leukocytes})`);
-  }
-  if (data.blood && data.blood !== 'Negatif') {
-    sensorScore += 1;
-    factors.push(`Urine Hematuria / Blood Positive (${data.blood})`);
-  }
-  if (data.ketone && data.ketone !== 'Negatif') {
-    sensorScore += 1;
-    factors.push(`Urine Keton Positif (${data.ketone})`);
-  }
-  if (data.glucose && data.glucose !== 'Negatif') {
-    sensorScore += 1;
-    factors.push(`Urine Glukosa Positif (${data.glucose})`);
-  }
+  // Major Maternal Risk Factors
+  const hasMajorRiskFactor = data.riwayatPreeklamsia || data.hipertensi || data.penyakitGinjal || data.diabetes;
 
-  // Tahap 3 – Hybrid AI Prediction
-  const hybridScore = clinicalScore + sensorScore;
-  
-  let riskLevel: RiskLevel;
+  // Minor Maternal Risk Factors
+  let minorRiskCount = 0;
+  if (data.kehamilanPertama) { minorRiskCount++; factors.push("Kehamilan Pertama (Nullipara)"); }
+  if (data.bmi >= 30) { minorRiskCount++; factors.push(`BMI Obesitas (${data.bmi.toFixed(1)} kg/m²)`); }
+  if (data.usiaIbu >= 35 || data.usiaIbu < 20) { minorRiskCount++; factors.push(`Usia Ibu Berisiko (${data.usiaIbu} tahun)`); }
+  if (data.riwayatKeluarga) { minorRiskCount++; factors.push("Riwayat Keluarga Preeklamsia"); }
+  const gestAge = data.usiaKehamilan || 30;
+  if (gestAge > 20) { minorRiskCount++; factors.push(`Usia Kehamilan >20 Minggu (${gestAge} Mgg)`); }
+
+  // Additional 10-Parameter Urine Reagent Indicators
+  if (data.leukocytes && data.leukocytes !== 'Negatif') factors.push(`Leukosit Urin: ${data.leukocytes}`);
+  if (data.blood && data.blood !== 'Negatif') factors.push(`Darah / Hematuria Urin: ${data.blood}`);
+  if (data.ketone && data.ketone !== 'Negatif') factors.push(`Keton Urin: ${data.ketone}`);
+
+  // RULE-BASED DECISION EVALUATION (POGI & Kemenkes RI Guidelines)
+  let riskLevel: RiskLevel = "LOW";
   let recommendation = "";
-  
-  if (hybridScore >= 16) {
+
+  // 1. HIGH RISK RULES
+  if (isHypertension && isProteinuriaAlert) {
     riskLevel = "HIGH";
-    recommendation = "Rujuk Segera ke Rumah Sakit (CDSS Referral Recommendation)";
-  } else if (hybridScore >= 10) {
+    matchedRules.push("Rule H1: Preeklamsia Terkonfirmasi (Hipertensi ≥140/90 mmHg + Proteinuria ≥+1)");
+  } else if (isSevereHypertension) {
+    riskLevel = "HIGH";
+    matchedRules.push("Rule H2: Hipertensi Berat (Tekanan Darah ≥160/110 mmHg)");
+  } else if (isSevereProteinuria) {
+    riskLevel = "HIGH";
+    matchedRules.push("Rule H3: Proteinuria Berat (Kadar Protein Urin ≥+2 / 100mg/dL)");
+  } else if (hasMajorRiskFactor) {
+    riskLevel = "HIGH";
+    if (data.riwayatPreeklamsia) matchedRules.push("Rule H4.1: Riwayat Preeklamsia pada kehamilan sebelumnya");
+    if (data.hipertensi) matchedRules.push("Rule H4.2: Penyakit Hipertensi Kronis pre-kehamilan");
+    if (data.penyakitGinjal) matchedRules.push("Rule H4.3: Riwayat Penyakit Ginjal Kronis");
+    if (data.diabetes) matchedRules.push("Rule H4.4: Penyakit Diabetes Mellitus");
+  } 
+  // 2. MEDIUM RISK RULES
+  else if (isHypertension || isPreHypertension || isProteinuriaAlert || protNum >= 0.15 || minorRiskCount >= 2) {
     riskLevel = "MEDIUM";
-    recommendation = "Monitoring Ketat & Kontrol Ulang di Puskesmas";
-  } else {
+    if (isHypertension) matchedRules.push("Rule M1.1: Hipertensi Gestasional Tanpa Proteinuria Signifikan");
+    else if (isPreHypertension) matchedRules.push("Rule M1.2: Tekanan Darah Pre-hipertensi (130-139/80-89 mmHg)");
+    
+    if (isProteinuriaAlert) matchedRules.push("Rule M1.3: Proteinuria Positif (+1)");
+    else if (protNum >= 0.15) matchedRules.push("Rule M1.4: Proteinuria Trace (0.15 g/L)");
+    
+    if (minorRiskCount >= 2) matchedRules.push(`Rule M2: Akumulasi ≥2 Faktor Risiko Minor (${minorRiskCount} Terdeteksi)`);
+  } 
+  // 3. LOW RISK
+  else {
     riskLevel = "LOW";
-    recommendation = "Lanjutkan Kontrol Kehamilan Rutin";
+    matchedRules.push("Rule L1: Tekanan Darah Normal, Protein Urin Negatif & Tanpa Faktor Risiko Mayor");
   }
 
-  const baseConfidence = riskLevel === "HIGH" ? 0.85 : riskLevel === "MEDIUM" ? 0.72 : 0.90;
-  const confidence = Math.round((baseConfidence + (hybridScore / 60) + Math.random() * 0.05) * 100) / 100;
+  // Set Rule-Based Clinical Recommendation
+  if (riskLevel === "HIGH") {
+    recommendation = "Rujuk Segera ke Rumah Sakit (Protokol Rule-Based Decision POGI/Kemenkes RI)";
+  } else if (riskLevel === "MEDIUM") {
+    recommendation = "Monitoring Ketat & Evaluasi Ulang 1-2 Minggu di Puskesmas";
+  } else {
+    recommendation = "Lanjutkan Perawatan & Kontrol Rutin Kehamilan (ANC)";
+  }
+
+  // Deterministic Scores & Confidence
+  const clinicalRiskScore = hasMajorRiskFactor ? 10 : minorRiskCount * 3;
+  const sensorScore = (isHypertension ? 10 : isPreHypertension ? 5 : 0) + (isProteinuriaAlert ? 10 : protNum >= 0.15 ? 5 : 0);
+  const totalRuleScore = clinicalRiskScore + sensorScore;
+  const confidence = riskLevel === "HIGH" ? 0.95 : riskLevel === "MEDIUM" ? 0.88 : 0.92;
 
   const riskLabelMap: Record<RiskLevel, string> = {
     LOW: "Risiko Rendah",
@@ -345,17 +357,17 @@ export function mockAIPredict(data: {
   };
 
   const protStr = typeof data.proteinUrin === 'string' ? data.proteinUrin : `${data.proteinUrin} g/L`;
-  const gestAgeStr = data.usiaKehamilan ? ` dengan usia kehamilan ${data.usiaKehamilan} minggu` : "";
-  const summarySentence = `Berdasarkan analisis AI, dengan usia ibu ${data.usiaIbu} tahun${gestAgeStr}, kadar protein urin ${protStr}, serta tekanan darah ${data.systolic}/${data.diastolic} mmHg, maka AI mengindikasikan Anda berada pada kategori ${riskLabelMap[riskLevel]} Preeklamsia.`;
+  const summarySentence = `Berdasarkan Rule-Based Decision System, dengan TD ${data.systolic}/${data.diastolic} mmHg dan Protein Urin ${protStr}, pasien diklasifikasikan pada kategori ${riskLabelMap[riskLevel]} Preeklamsia (${matchedRules[0] || 'Aturan Klinis'}).`;
 
   return {
     riskLevel,
-    confidence: Math.min(confidence, 0.99),
-    factors,
-    clinicalRiskScore: clinicalScore,
+    confidence,
+    factors: factors.length > 0 ? factors : matchedRules,
+    clinicalRiskScore,
     sensorScore,
-    hybridScore,
+    totalRuleScore,
+    hybridScore: totalRuleScore,
     recommendation,
-    summarySentence
+    summarySentence,
   };
 }

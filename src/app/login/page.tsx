@@ -36,7 +36,7 @@ export default function LoginPage() {
       // Store role in localStorage for demo
       localStorage.setItem("preecare_role", account.role);
       localStorage.setItem("preecare_email", account.email);
-      localStorage.setItem("preecare_name", account.role === "Pasien" ? "Siti Aminah" : account.role === "Nakes" ? "Bidan Ratna" : account.role === "Dokter RS" ? "Dr. Anwar" : "Admin PREECARE");
+      localStorage.setItem("preecare_name", account.role === "Pasien" ? "Siti Aminah" : account.role === "Nakes" ? "Bidan Ratna" : account.role === "Dokter RS" ? "Dr. Tsamara" : "Admin PREECARE");
 
       if (account.role === "Pasien") router.push("/dashboard/pasien");
       else if (account.role === "Nakes") router.push("/dashboard/nakes");

@@ -330,47 +330,50 @@ def screening_detail_api(sid):
 
 
 def compute_risk(data):
-    score = 0.0
-
+    """
+    Rule-Based Decision System for Preeclampsia Screening
+    Based on POGI & Kemenkes RI Clinical Decision Rules.
+    """
     sys_val = int(data.get('systolic') or 120)
     dia_val = int(data.get('diastolic') or 80)
+    protein = str(data.get('protein_urine') or 'Negatif').lower()
 
-    if sys_val >= 160 or dia_val >= 110:
-        score += 35
-    elif sys_val >= 140 or dia_val >= 90:
-        score += 25
-    elif sys_val >= 130 or dia_val >= 85:
-        score += 15
+    # Proteinuria classification
+    is_severe_prot = '+2' in protein or '+3' in protein or '100' in protein or '300' in protein
+    is_prot = is_severe_prot or '+1' in protein or '30' in protein
 
-    protein = str(data.get('protein_urine') or 'Negatif')
-    if '+3' in protein or '300' in protein:
-        score += 30
-    elif '+2' in protein or '100' in protein:
-        score += 25
-    elif '+1' in protein or '30' in protein:
-        score += 15
-    elif 'Trace' in protein or '±' in protein:
-        score += 5
+    # Blood pressure classification
+    is_severe_ht = sys_val >= 160 or dia_val >= 110
+    is_ht = sys_val >= 140 or dia_val >= 90
+    is_pre_ht = (130 <= sys_val < 140) or (80 <= dia_val < 90)
 
-    if data.get('history_preeclampsia'): score += 15
-    if data.get('family_history'): score += 10
-    if data.get('diabetes'): score += 10
-    if data.get('chronic_hypertension'): score += 15
-    if data.get('kidney_disease'): score += 10
-    if data.get('nullipara'): score += 10
+    # Major Risk Factors
+    has_major_rf = (
+        bool(data.get('history_preeclampsia')) or
+        bool(data.get('chronic_hypertension')) or
+        bool(data.get('kidney_disease')) or
+        bool(data.get('diabetes'))
+    )
 
+    # Minor Risk Factors
+    minor_count = 0
+    if data.get('nullipara'): minor_count += 1
+    if data.get('family_history'): minor_count += 1
     bmi = float(data.get('bmi') or 22.0)
-    if bmi >= 30: score += 10
-    elif bmi >= 25: score += 5
+    if bmi >= 30: minor_count += 1
+    age = int(data.get('age') or 25)
+    if age >= 35 or age < 20: minor_count += 1
 
-    score = min(score, 100)
-
-    if score >= 45:
+    # Rule-Based Classification
+    if (is_ht and is_prot) or is_severe_ht or is_severe_prot or has_major_rf:
         category = 'TINGGI'
-    elif score >= 20:
+        score = 88.0 if (is_severe_ht or is_severe_prot) else 78.0
+    elif is_ht or is_pre_ht or is_prot or 'trace' in protein or minor_count >= 2:
         category = 'SEDANG'
+        score = 52.0 if (is_ht or is_prot) else 38.0
     else:
         category = 'RENDAH'
+        score = 15.0
 
     return round(score, 1), category
 
